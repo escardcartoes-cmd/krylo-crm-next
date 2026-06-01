@@ -5,7 +5,8 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { Topbar } from "@/components/layout/Topbar";
 import { ButtonLink } from "@/components/ui/button-link";
-import { Search, User, Mail, Phone, Building2, ChevronRight } from "lucide-react";
+import { exportCSV } from "@/lib/export";
+import { Search, User, Mail, Phone, Building2, ChevronRight, Download } from "lucide-react";
 import Link from "next/link";
 
 const GRADIENT_PAIRS: [string, string][] = [
@@ -39,12 +40,35 @@ export default function ContatosPage() {
 
   const items: any[] = data?.items ?? [];
 
+  const handleExport = () => {
+    exportCSV("contatos.csv", items, [
+      { key: "nome", label: "Nome" },
+      { key: "cargo", label: "Cargo" },
+      { key: "empresa_nome", label: "Empresa" },
+      { key: "email", label: "E-mail" },
+      { key: "telefone", label: "Telefone" },
+    ]);
+  };
+
   return (
     <>
       <Topbar
         title="Contatos"
         subtitle={data ? `${data.total} ${data.total === 1 ? "contato" : "contatos"}` : "Contatos cadastrados"}
-        actions={<ButtonLink href="/contatos/novo" size="sm">+ Novo contato</ButtonLink>}
+        actions={
+          <>
+            <button
+              onClick={handleExport}
+              disabled={items.length === 0}
+              className="inline-flex shrink-0 items-center justify-center font-semibold whitespace-nowrap transition-all duration-150 select-none cursor-pointer bg-white text-[#334155] border border-[rgba(15,23,42,0.1)] rounded-xl hover:bg-[#F8FAFC] hover:border-[rgba(79,70,229,0.3)] active:scale-[0.98] h-8 px-3.5 text-[12px] gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ boxShadow: "0 1px 2px rgba(15,23,42,0.04)" }}
+            >
+              <Download className="h-3.5 w-3.5" />
+              Exportar CSV
+            </button>
+            <ButtonLink href="/contatos/novo" size="sm">+ Novo contato</ButtonLink>
+          </>
+        }
       />
       <div className="flex-1 px-8 pt-4 pb-8 space-y-5">
 

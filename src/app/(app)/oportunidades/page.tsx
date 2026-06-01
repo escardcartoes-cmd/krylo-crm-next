@@ -5,7 +5,8 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { Topbar } from "@/components/layout/Topbar";
 import { ButtonLink } from "@/components/ui/button-link";
-import { Search, Target, CreditCard, ChevronRight, DollarSign } from "lucide-react";
+import { exportCSV } from "@/lib/export";
+import { Search, Target, CreditCard, ChevronRight, DollarSign, Download } from "lucide-react";
 import Link from "next/link";
 
 function fmt(v: number) {
@@ -21,18 +22,44 @@ const ETAPA_STYLES: Record<string, { bg: string; text: string; label: string }> 
   perdido:    { bg: "tint-rose",      text: "text-rose-700",   label: "Perdido" },
 };
 
+const ETAPA_OPTIONS: { value: string; label: string }[] = [
+  { value: "todas",      label: "Todas" },
+  { value: "prospect",   label: "Prospect" },
+  { value: "contato",    label: "Contato" },
+  { value: "proposta",   label: "Proposta" },
+  { value: "negociacao", label: "Negociação" },
+  { value: "fechado",    label: "Implantação" },
+  { value: "perdido",    label: "Perdido" },
+];
+
 export default function OportunidadesPage() {
   const [q, setQ] = useState("");
   const [search, setSearch] = useState("");
+  const [etapaFilter, setEtapaFilter] = useState<string>("todas");
 
   const { data, isLoading } = useQuery({
     queryKey: ["oportunidades", search],
     queryFn: () => api.get("/api/oportunidades", { params: { q: search, per_page: 100 } }).then((r) => r.data),
   });
 
-  const items: any[] = data?.items ?? [];
+  const allItems: any[] = data?.items ?? [];
+  const items = allItems.filter((o) => etapaFilter === "todas" || o.etapa === etapaFilter);
+
   const totalPipeline = items.reduce((s, o) => s + (o.valor_estimado || 0), 0);
   const totalCartoes = items.reduce((s, o) => s + (o.num_cartoes || 0), 0);
+
+  const handleExport = () => {
+    exportCSV("oportunidades.csv", items, [
+      { key: "titulo", label: "Título" },
+      { key: "empresa_nome", label: "Empresa" },
+      { key: "etapa", label: "Etapa" },
+      { key: "valor_estimado", label: "Valor Estimado" },
+      { key: "num_cartoes", label: "Nº Cartões" },
+      { key: "valor_mensal", label: "Valor Mensal" },
+      { key: "responsavel", label: "Responsável" },
+      { key: "previsao_fechamento", label: "Previsão de Fechamento" },
+    ]);
+  };
 
   return (
     <>
@@ -42,6 +69,15 @@ export default function OportunidadesPage() {
         actions={
           <>
             <ButtonLink href="/pipeline" variant="outline" size="sm">Ver Pipeline</ButtonLink>
+            <button
+              onClick={handleExport}
+              disabled={items.length === 0}
+              className="inline-flex shrink-0 items-center justify-center font-semibold whitespace-nowrap transition-all duration-150 select-none cursor-pointer bg-white text-[#334155] border border-[rgba(15,23,42,0.1)] rounded-xl hover:bg-[#F8FAFC] hover:border-[rgba(79,70,229,0.3)] active:scale-[0.98] h-8 px-3.5 text-[12px] gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ boxShadow: "0 1px 2px rgba(15,23,42,0.04)" }}
+            >
+              <Download className="h-3.5 w-3.5" />
+              Exportar CSV
+            </button>
             <ButtonLink href="/oportunidades/nova" size="sm">+ Nova oportunidade</ButtonLink>
           </>
         }
@@ -90,6 +126,23 @@ export default function OportunidadesPage() {
               Limpar
             </button>
           )}
+        </div>
+
+        {/* Filter pills */}
+        <div className="flex items-center gap-2 flex-wrap">
+          {ETAPA_OPTIONS.map((opt) => (
+            <button
+              key={opt.value}
+              onClick={() => setEtapaFilter(opt.value)}
+              className={`px-3 py-1.5 rounded-xl text-[12px] font-bold transition-all ${
+                etapaFilter === opt.value
+                  ? "bg-[#4F46E5] text-white shadow-[0_4px_12px_rgba(79,70,229,0.3)]"
+                  : "bg-white border border-[rgba(15,23,42,0.08)] text-[#475569] hover:bg-[#F8FAFC]"
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
         </div>
 
         {isLoading ? (
