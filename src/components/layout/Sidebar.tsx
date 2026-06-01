@@ -3,13 +3,15 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   LayoutDashboard, Bot, Phone, Mail, Brain,
   HelpCircle, Radar, Building2, Users, Target,
   BarChart3, Calculator, CheckSquare, Thermometer,
-  LogOut, Search, Sparkles, Upload, Goal,
+  LogOut, Search, Sparkles, Upload, Goal, Settings, UserCircle,
 } from "lucide-react";
 
 interface NavItem {
@@ -54,7 +56,14 @@ const navSections: { label: string | null; items: NavItem[] }[] = [
     items: [
       { href: "/termometro",      label: "Termômetro",      icon: Thermometer },
       { href: "/metas",           label: "Metas",           icon: Goal },
+    ],
+  },
+  {
+    label: "Configurações",
+    items: [
       { href: "/usuarios",        label: "Usuários",        icon: Users },
+      { href: "/configuracoes",   label: "Empresa",         icon: Settings },
+      { href: "/conta",           label: "Minha conta",     icon: UserCircle },
       { href: "/ajuda",           label: "Ajuda",           icon: HelpCircle },
     ],
   },
@@ -63,6 +72,20 @@ const navSections: { label: string | null; items: NavItem[] }[] = [
 export function Sidebar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
+
+  const { data: counts } = useQuery({
+    queryKey: ["sidebar-counts"],
+    queryFn: () => api.get("/api/sidebar/counts").then(r => r.data),
+    refetchInterval: 30_000,
+    enabled: !!user,
+  });
+
+  function badgeFor(href: string): number | undefined {
+    if (href === "/fila-whatsapp") return counts?.fila_whatsapp;
+    if (href === "/cadencias")     return counts?.cadencias_hoje;
+    if (href === "/atividades")    return counts?.atividades_pendentes;
+    return undefined;
+  }
 
   function isActive(href: string) {
     return pathname === href || pathname.startsWith(href + "/");
@@ -121,6 +144,7 @@ export function Sidebar() {
             {section.items.map((item) => {
               const active = isActive(item.href);
               const Icon = item.icon;
+              const badge = item.badge ?? badgeFor(item.href);
               return (
                 <Link
                   key={item.href}
@@ -144,9 +168,10 @@ export function Sidebar() {
                   <Icon className={cn("h-[15px] w-[15px] flex-shrink-0 transition-colors",
                     active ? "text-[#4F46E5]" : "text-[#64748B]")} />
                   <span className="flex-1 truncate">{item.label}</span>
-                  {item.badge ? (
-                    <span className="h-4 min-w-4 px-1 rounded-full bg-[#4F46E5] text-white text-[9px] font-bold flex items-center justify-center">
-                      {item.badge}
+                  {badge && badge > 0 ? (
+                    <span className="h-4 min-w-4 px-1 rounded-full bg-[#EF4444] text-white text-[9px] font-bold flex items-center justify-center"
+                          style={{ boxShadow: "0 2px 6px rgba(239,68,68,0.4)" }}>
+                      {badge > 99 ? "99+" : badge}
                     </span>
                   ) : null}
                 </Link>
@@ -159,24 +184,27 @@ export function Sidebar() {
       {/* User */}
       {user && (
         <div className="px-3 py-3 border-t border-[rgba(15,23,42,0.05)] bg-gradient-to-b from-transparent to-[rgba(79,70,229,0.03)]">
-          <div className="flex items-center gap-2.5 px-2 py-1.5 rounded-xl hover:bg-white transition-colors group cursor-default">
-            <div
-              className="h-8 w-8 rounded-full flex items-center justify-center text-white text-[12px] font-bold flex-shrink-0"
-              style={{
-                background: "linear-gradient(135deg,#4F46E5,#A855F7)",
-                boxShadow: "0 2px 8px rgba(79,70,229,0.3)",
-              }}
-            >
-              {user.nome?.[0]?.toUpperCase() ?? "A"}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-[12px] font-semibold text-[#0F172A] truncate leading-tight">{user.nome}</p>
-              <p className="text-[10px] text-[#64748B] truncate capitalize">{user.perfil}</p>
-            </div>
+          <div className="flex items-center gap-1.5">
+            <Link href="/conta"
+              className="flex items-center gap-2.5 px-2 py-1.5 rounded-xl hover:bg-white transition-colors flex-1 min-w-0">
+              <div
+                className="h-8 w-8 rounded-full flex items-center justify-center text-white text-[12px] font-bold flex-shrink-0"
+                style={{
+                  background: "linear-gradient(135deg,#4F46E5,#A855F7)",
+                  boxShadow: "0 2px 8px rgba(79,70,229,0.3)",
+                }}
+              >
+                {user.nome?.[0]?.toUpperCase() ?? "A"}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[12px] font-semibold text-[#0F172A] truncate leading-tight">{user.nome}</p>
+                <p className="text-[10px] text-[#64748B] truncate capitalize">{user.perfil}</p>
+              </div>
+            </Link>
             <button
               onClick={logout}
               title="Sair"
-              className="opacity-0 group-hover:opacity-100 transition-opacity text-[#64748B] hover:text-[#EF4444] p-1 rounded-md hover:bg-[#FEF2F2]"
+              className="text-[#64748B] hover:text-[#EF4444] p-1.5 rounded-lg hover:bg-[#FEF2F2] flex-shrink-0"
             >
               <LogOut className="h-3.5 w-3.5" />
             </button>
