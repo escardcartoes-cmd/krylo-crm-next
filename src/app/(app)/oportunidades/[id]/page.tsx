@@ -5,8 +5,7 @@ import { api } from "@/lib/api";
 import { Topbar } from "@/components/layout/Topbar";
 import { ButtonLink } from "@/components/ui/button-link";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Edit, CreditCard, DollarSign, Calendar, User, Target, TrendingUp } from "lucide-react";
-import Link from "next/link";
+import { ArrowLeft, Edit, CreditCard, DollarSign, Calendar, User, TrendingUp } from "lucide-react";
 import { useParams } from "next/navigation";
 import { toast } from "sonner";
 
@@ -26,45 +25,14 @@ const ETAPAS = [
   { value: "perdido",    label: "Perdido" },
 ];
 
-const ETAPA_STYLE: Record<string, { btn: string; active: string }> = {
-  prospect:   { btn: "bg-[#F2F2F7] text-[#636366]",   active: "ring-2 ring-[#8E8E93]/30" },
-  contato:    { btn: "bg-[#EEF3FF] text-[#0057FF]",    active: "ring-2 ring-[#0057FF]/30" },
-  proposta:   { btn: "bg-[#FFF8E8] text-[#B07D00]",    active: "ring-2 ring-[#FF9500]/30" },
-  negociacao: { btn: "bg-[#FFF3E8] text-[#C05000]",    active: "ring-2 ring-[#FF6B00]/30" },
-  fechado:    { btn: "bg-[#E8F9F0] text-[#1C7C4A]",    active: "ring-2 ring-[#34C759]/30" },
-  perdido:    { btn: "bg-[#FFF1F0] text-[#FF3B30]",    active: "ring-2 ring-[#FF3B30]/30" },
+const ETAPA_STYLE: Record<string, { bg: string; text: string }> = {
+  prospect:   { bg: "bg-[#F1F5F9]",  text: "text-[#64748B]" },
+  contato:    { bg: "tint-blue",     text: "text-[#4F46E5]" },
+  proposta:   { bg: "tint-amber",    text: "text-amber-700" },
+  negociacao: { bg: "bg-orange-50",  text: "text-orange-700" },
+  fechado:    { bg: "tint-emerald",  text: "text-emerald-700" },
+  perdido:    { bg: "tint-rose",     text: "text-rose-700" },
 };
-
-const KPI_CARD_STYLES = [
-  {
-    bg: "bg-gradient-to-br from-[#EEF3FF] to-[#D6E4FF]",
-    iconBg: "bg-white/70",
-    iconColor: "text-[#0057FF]",
-    labelColor: "text-[#0057FF]/70",
-    valueColor: "text-[#0057FF]",
-  },
-  {
-    bg: "bg-gradient-to-br from-[#E8F9F0] to-[#C8F0DA]",
-    iconBg: "bg-white/70",
-    iconColor: "text-[#1A7F4B]",
-    labelColor: "text-[#1A7F4B]/70",
-    valueColor: "text-[#1A7F4B]",
-  },
-  {
-    bg: "bg-gradient-to-br from-[#F2F2F7] to-[#E8E8ED]",
-    iconBg: "bg-white/70",
-    iconColor: "text-[#636366]",
-    labelColor: "text-[#636366]/70",
-    valueColor: "text-[#3A3A3C]",
-  },
-  {
-    bg: "bg-gradient-to-br from-[#FFF8E8] to-[#FFE9B8]",
-    iconBg: "bg-white/70",
-    iconColor: "text-[#B07D00]",
-    labelColor: "text-[#B07D00]/70",
-    valueColor: "text-[#B07D00]",
-  },
-];
 
 export default function OportunidadeDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -85,7 +53,7 @@ export default function OportunidadeDetailPage() {
   if (!op) return (
     <>
       <Topbar title="Oportunidade" />
-      <div className="px-7 pt-4 space-y-4"><Skeleton className="h-32 w-full rounded-2xl" /></div>
+      <div className="flex-1 px-8 pt-4 pb-8 space-y-5"><Skeleton className="h-32 w-full rounded-2xl" /></div>
     </>
   );
 
@@ -97,28 +65,28 @@ export default function OportunidadeDetailPage() {
       value: n(op.num_cartoes ?? 0),
       icon: CreditCard,
       sub: op.num_cartoes > 0 ? "implantações" : "nenhum projetado",
-      style: KPI_CARD_STYLES[0],
+      tint: "tint-blue", color: "text-[#4F46E5]",
     },
     {
       label: "Receita mensal",
       value: fmt(op.valor_estimado ?? 0),
       icon: DollarSign,
       sub: `Anual: ${fmt(receitaAnual)}`,
-      style: KPI_CARD_STYLES[1],
+      tint: "tint-emerald", color: "text-emerald-700",
     },
     {
       label: "Responsável",
       value: op.responsavel || "—",
       icon: User,
       sub: "executivo de conta",
-      style: KPI_CARD_STYLES[2],
+      tint: "tint-violet", color: "text-violet-600",
     },
     {
       label: "Previsão",
       value: op.previsao_fechamento || "—",
       icon: Calendar,
       sub: "data de implantação",
-      style: KPI_CARD_STYLES[3],
+      tint: "tint-amber", color: "text-amber-600",
     },
   ];
 
@@ -129,46 +97,54 @@ export default function OportunidadeDetailPage() {
         subtitle={op.empresa_nome ?? "Oportunidade"}
         actions={
           <>
-            <ButtonLink href="/oportunidades" variant="outline" size="sm"><ArrowLeft className="h-3.5 w-3.5 mr-1" />Voltar</ButtonLink>
-            <ButtonLink href={`/oportunidades/${id}/editar`} size="sm"><Edit className="h-3.5 w-3.5 mr-1" />Editar</ButtonLink>
+            <ButtonLink href="/oportunidades" variant="outline" size="sm"><ArrowLeft className="h-3.5 w-3.5" />Voltar</ButtonLink>
+            <ButtonLink href={`/oportunidades/${id}/editar`} size="sm"><Edit className="h-3.5 w-3.5" />Editar</ButtonLink>
           </>
         }
       />
-      <div className="px-7 pt-4 pb-7 space-y-4">
+      <div className="flex-1 px-8 pt-4 pb-8 space-y-5">
 
-        {/* KPI bar — colored cards */}
+        {/* KPI bar */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {kpis.map((kpi, i) => (
-            <div key={i} className={`rounded-2xl px-4 py-4 shadow-[0_0_0_1px_rgba(0,0,0,0.06)] ${kpi.style.bg}`}>
-              <div className="flex items-center justify-between mb-2">
-                <p className={`text-[10px] font-bold uppercase tracking-wider ${kpi.style.labelColor}`}>{kpi.label}</p>
-                <div className={`h-6 w-6 rounded-lg flex items-center justify-center ${kpi.style.iconBg}`}>
-                  <kpi.icon className={`h-3.5 w-3.5 ${kpi.style.iconColor}`} />
+            <div key={i} className="surface-card rounded-2xl p-5 relative overflow-hidden">
+              <div className={`absolute -right-4 -top-4 h-24 w-24 rounded-full opacity-60 blur-2xl ${kpi.tint}`} />
+              <div className="relative">
+                <div className={`h-10 w-10 rounded-xl flex items-center justify-center mb-3 ${kpi.tint}`}>
+                  <kpi.icon className={`h-[18px] w-[18px] ${kpi.color}`} />
                 </div>
+                <p className="text-[11px] font-bold text-[#64748B] uppercase tracking-[0.06em]">{kpi.label}</p>
+                <p className="text-[20px] font-extrabold text-[#0F172A] tracking-[-0.5px] mt-0.5 leading-tight truncate">{kpi.value}</p>
+                <p className="text-[12px] text-[#64748B] mt-1">{kpi.sub}</p>
               </div>
-              <p className={`text-[18px] font-extrabold tracking-[-0.5px] ${kpi.style.valueColor}`}>{kpi.value}</p>
-              <p className={`text-[11px] mt-0.5 ${kpi.style.labelColor}`}>{kpi.sub}</p>
             </div>
           ))}
         </div>
 
         {/* Revenue insight */}
         {op.num_cartoes > 0 && op.valor_estimado > 0 && (
-          <div className="bg-gradient-to-r from-[#0057FF] to-[#338BFF] rounded-2xl p-4 text-white relative overflow-hidden shadow-[0_4px_16px_rgba(0,87,255,0.25)]">
-            <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-white/10" />
+          <div
+            className="rounded-2xl p-6 text-white relative overflow-hidden"
+            style={{
+              background: "linear-gradient(135deg,#4F46E5 0%,#7C3AED 50%,#A855F7 100%)",
+              boxShadow: "0 10px 40px rgba(79,70,229,0.3), 0 4px 12px rgba(124,58,237,0.2)",
+            }}
+          >
+            <div className="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
+            <div className="absolute -left-8 -bottom-8 h-32 w-32 rounded-full bg-pink-400/20 blur-3xl" />
             <div className="relative flex items-center gap-4 flex-wrap">
-              <div className="h-10 w-10 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0">
-                <TrendingUp className="h-5 w-5 text-white" />
+              <div className="h-12 w-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0">
+                <TrendingUp className="h-6 w-6" />
               </div>
-              <div className="flex-1">
-                <p className="text-[11px] font-bold text-white/70 uppercase tracking-wider mb-0.5">Projeção de receita</p>
-                <p className="text-[13px] text-white/90">
+              <div className="flex-1 min-w-0">
+                <p className="text-[11px] font-bold text-white/70 uppercase tracking-[0.12em] mb-1">Projeção de receita</p>
+                <p className="text-[14px] text-white/90">
                   {n(op.num_cartoes)} cartões × {fmt(op.valor_mensal ?? 0)}/cartão/mês
                 </p>
               </div>
               <div className="text-right flex-shrink-0">
-                <p className="text-[11px] text-white/70">Receita anual projetada</p>
-                <p className="text-[22px] font-extrabold tracking-[-0.5px]">{fmt(receitaAnual)}</p>
+                <p className="text-[11px] text-white/70 font-semibold uppercase tracking-wider">Receita anual</p>
+                <p className="text-[26px] font-black tracking-[-0.5px]">{fmt(receitaAnual)}</p>
               </div>
             </div>
           </div>
@@ -176,25 +152,25 @@ export default function OportunidadeDetailPage() {
 
         {/* Notas */}
         {op.notas && (
-          <div className="bg-white rounded-2xl p-5 shadow-[0_0_0_1px_rgba(0,0,0,0.06)]">
-            <p className="text-[11px] font-bold text-[#8E8E93] uppercase tracking-wider mb-2">Notas</p>
-            <p className="text-[13px] text-[#3A3A3C] whitespace-pre-line leading-relaxed">{op.notas}</p>
+          <div className="surface-card rounded-2xl p-5">
+            <p className="text-[12px] font-bold text-[#475569] uppercase tracking-[0.08em] mb-2">Notas</p>
+            <p className="text-[13px] text-[#0F172A] whitespace-pre-line leading-relaxed">{op.notas}</p>
           </div>
         )}
 
         {/* Move etapa */}
-        <div className="bg-white rounded-2xl p-5 shadow-[0_0_0_1px_rgba(0,0,0,0.06)]">
-          <p className="text-[11px] font-bold text-[#8E8E93] uppercase tracking-wider mb-3">Mover etapa</p>
+        <div className="surface-card rounded-2xl p-5">
+          <p className="text-[12px] font-bold text-[#475569] uppercase tracking-[0.08em] mb-3">Mover etapa</p>
           <div className="flex flex-wrap gap-2">
             {ETAPAS.map(etapa => {
-              const s = ETAPA_STYLE[etapa.value] ?? { btn: "bg-[#F2F2F7] text-[#636366]", active: "" };
+              const s = ETAPA_STYLE[etapa.value] ?? { bg: "bg-[#F1F5F9]", text: "text-[#64748B]" };
               const isActive = etapa.value === op.etapa;
               return (
                 <button
                   key={etapa.value}
                   onClick={() => !isActive && moveMutation.mutate(etapa.value)}
                   disabled={isActive || moveMutation.isPending}
-                  className={`px-3.5 py-2 rounded-xl text-[12px] font-semibold transition-all ${s.btn} ${isActive ? `${s.active} shadow-sm cursor-default` : "opacity-50 hover:opacity-90"}`}
+                  className={`px-3.5 py-2 rounded-xl text-[12px] font-bold transition-all ${s.bg} ${s.text} ${isActive ? "ring-2 ring-current/30 shadow-sm cursor-default" : "opacity-60 hover:opacity-100"}`}
                 >
                   {etapa.label}
                   {isActive && " ✓"}

@@ -12,9 +12,9 @@ function fmt(v: number) {
 }
 
 function tempStyle(score: number) {
-  if (score >= 80) return { bar: "bg-[#34C759]", bg: "bg-[#E8F9F0]", text: "text-[#1C7C4A]", label: "Saudável", Icon: TrendingUp };
-  if (score >= 50) return { bar: "bg-[#FF9500]", bg: "bg-[#FFF3E8]", text: "text-[#C25A00]", label: "Atenção",  Icon: Minus };
-  return { bar: "bg-[#FF3B30]", bg: "bg-[#FFF1F0]", text: "text-[#CC0000]", label: "Risco", Icon: TrendingDown };
+  if (score >= 80) return { bar: "bg-emerald-500", tint: "tint-emerald", text: "text-emerald-700", label: "Saudável", Icon: TrendingUp };
+  if (score >= 50) return { bar: "bg-amber-500",   tint: "tint-amber",   text: "text-amber-700",   label: "Atenção",  Icon: Minus };
+  return { bar: "bg-rose-500", tint: "tint-rose", text: "text-rose-700", label: "Risco", Icon: TrendingDown };
 }
 
 export default function TermometroPage() {
@@ -30,6 +30,10 @@ export default function TermometroPage() {
 
   const clientes = (data ?? []) as any[];
   const saudaveis = clientes.filter(c => (c.temperatura ?? c.score ?? 0) >= 80).length;
+  const atencao = clientes.filter(c => {
+    const s = c.temperatura ?? c.score ?? 0;
+    return s >= 50 && s < 80;
+  }).length;
   const risco = clientes.filter(c => (c.temperatura ?? c.score ?? 0) < 50).length;
 
   return (
@@ -38,22 +42,38 @@ export default function TermometroPage() {
         title="Termômetro de Clientes"
         subtitle="Saúde dos programas de cartão ativos"
       />
-      <div className="px-7 pt-4 pb-7 space-y-4">
+      <div className="flex-1 px-8 pt-4 pb-8 space-y-5">
 
         {/* Summary */}
         {!isLoading && clientes.length > 0 && (
-          <div className="grid grid-cols-3 gap-3">
-            <div className="bg-white rounded-2xl px-4 py-4 shadow-[0_0_0_1px_rgba(0,0,0,0.06)]">
-              <p className="text-[10px] font-semibold text-[#8E8E93] uppercase tracking-wider">Total clientes</p>
-              <p className="text-[24px] font-bold text-[#1C1C1E] mt-1">{clientes.length}</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="surface-card rounded-2xl p-5 relative overflow-hidden">
+              <div className="absolute -right-4 -top-4 h-20 w-20 rounded-full opacity-60 blur-2xl tint-blue" />
+              <div className="relative">
+                <p className="text-[11px] font-bold text-[#64748B] uppercase tracking-[0.06em]">Total clientes</p>
+                <p className="text-[28px] font-extrabold text-[#0F172A] tracking-[-0.8px] mt-0.5 leading-none">{clientes.length}</p>
+              </div>
             </div>
-            <div className="bg-[#E8F9F0] rounded-2xl px-4 py-4">
-              <p className="text-[10px] font-semibold text-[#1C7C4A] uppercase tracking-wider">Saudáveis</p>
-              <p className="text-[24px] font-bold text-[#1C7C4A] mt-1">{saudaveis}</p>
+            <div className="surface-card rounded-2xl p-5 relative overflow-hidden">
+              <div className="absolute -right-4 -top-4 h-20 w-20 rounded-full opacity-60 blur-2xl tint-emerald" />
+              <div className="relative">
+                <p className="text-[11px] font-bold text-emerald-700 uppercase tracking-[0.06em]">Saudáveis</p>
+                <p className="text-[28px] font-extrabold text-emerald-700 tracking-[-0.8px] mt-0.5 leading-none">{saudaveis}</p>
+              </div>
             </div>
-            <div className="bg-[#FFF1F0] rounded-2xl px-4 py-4">
-              <p className="text-[10px] font-semibold text-[#CC0000] uppercase tracking-wider">Em risco</p>
-              <p className="text-[24px] font-bold text-[#CC0000] mt-1">{risco}</p>
+            <div className="surface-card rounded-2xl p-5 relative overflow-hidden">
+              <div className="absolute -right-4 -top-4 h-20 w-20 rounded-full opacity-60 blur-2xl tint-amber" />
+              <div className="relative">
+                <p className="text-[11px] font-bold text-amber-700 uppercase tracking-[0.06em]">Atenção</p>
+                <p className="text-[28px] font-extrabold text-amber-700 tracking-[-0.8px] mt-0.5 leading-none">{atencao}</p>
+              </div>
+            </div>
+            <div className="surface-card rounded-2xl p-5 relative overflow-hidden">
+              <div className="absolute -right-4 -top-4 h-20 w-20 rounded-full opacity-60 blur-2xl tint-rose" />
+              <div className="relative">
+                <p className="text-[11px] font-bold text-rose-700 uppercase tracking-[0.06em]">Em risco</p>
+                <p className="text-[28px] font-extrabold text-rose-700 tracking-[-0.8px] mt-0.5 leading-none">{risco}</p>
+              </div>
             </div>
           </div>
         )}
@@ -66,46 +86,46 @@ export default function TermometroPage() {
           <div className="space-y-2">
             {clientes.map(emp => {
               const score = emp.temperatura ?? emp.score ?? 0;
-              const { bar, bg, text, label, Icon } = tempStyle(score);
+              const { bar, tint, text, label, Icon } = tempStyle(score);
               return (
                 <Link
                   key={emp.id}
                   href={`/empresas/${emp.id}`}
-                  className="flex items-center gap-4 px-5 py-4 bg-white rounded-2xl shadow-[0_0_0_1px_rgba(0,0,0,0.06)] hover:shadow-[0_0_0_1px_rgba(0,87,255,0.2)] transition-all"
+                  className="surface-card surface-card-hover flex items-center gap-4 px-5 py-4 rounded-2xl group transition-all"
                 >
-                  <div className={`h-9 w-9 rounded-xl flex items-center justify-center flex-shrink-0 ${bg}`}>
-                    <Icon className={`h-4 w-4 ${text}`} />
+                  <div className={`h-11 w-11 rounded-xl flex items-center justify-center flex-shrink-0 ${tint}`}>
+                    <Icon className={`h-5 w-5 ${text}`} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1.5">
-                      <p className="text-[13px] font-semibold text-[#1C1C1E] truncate">{emp.nome}</p>
-                      <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-lg flex-shrink-0 ${bg} ${text}`}>{label}</span>
+                    <div className="flex items-center gap-2 mb-2 flex-wrap">
+                      <p className="text-[14px] font-bold text-[#0F172A] truncate">{emp.nome}</p>
+                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md flex-shrink-0 ${tint} ${text}`}>{label}</span>
                       {emp.tipo_cartao && (
-                        <span className="text-[10px] font-medium text-[#8E8E93] flex items-center gap-1 flex-shrink-0">
+                        <span className="text-[10px] font-semibold text-[#64748B] flex items-center gap-1 flex-shrink-0">
                           <CreditCard className="h-3 w-3" />{emp.tipo_cartao}
                         </span>
                       )}
                     </div>
-                    <div className="h-1.5 bg-[#F2F2F7] rounded-full overflow-hidden w-full max-w-xs">
+                    <div className="h-1.5 bg-[#F1F5F9] rounded-full overflow-hidden w-full max-w-xs">
                       <div className={`h-full ${bar} rounded-full transition-all`} style={{ width: `${Math.min(100, score)}%` }} />
                     </div>
                   </div>
                   <div className="flex-shrink-0 text-right">
-                    <p className="text-[18px] font-bold text-[#1C1C1E]">{score}</p>
+                    <p className="text-[20px] font-extrabold text-[#0F172A] tracking-[-0.5px] leading-none">{score}</p>
                     {emp.valor_mensal > 0 && (
-                      <p className="text-[11px] text-[#8E8E93] mt-0.5">{fmt(emp.valor_mensal)}/mês</p>
+                      <p className="text-[11px] text-[#64748B] mt-1">{fmt(emp.valor_mensal)}/mês</p>
                     )}
                   </div>
                 </Link>
               );
             })}
             {clientes.length === 0 && (
-              <div className="text-center py-20">
-                <div className="h-14 w-14 rounded-2xl bg-[#EEF3FF] flex items-center justify-center mx-auto mb-4">
-                  <CreditCard className="h-7 w-7 text-[#0057FF]" />
+              <div className="surface-card rounded-2xl py-16 text-center">
+                <div className="h-16 w-16 rounded-2xl tint-blue flex items-center justify-center mx-auto mb-4">
+                  <CreditCard className="h-8 w-8 text-[#4F46E5]" />
                 </div>
-                <p className="text-[14px] font-semibold text-[#3A3A3C]">Nenhum cliente com cartão ativo</p>
-                <p className="text-[13px] text-[#8E8E93] mt-1">Implante programas de cartão para monitorar aqui</p>
+                <p className="text-[15px] font-bold text-[#0F172A]">Nenhum cliente com cartão ativo</p>
+                <p className="text-[13px] text-[#64748B] mt-1">Implante programas de cartão para monitorar aqui</p>
               </div>
             )}
           </div>

@@ -3,8 +3,7 @@
 import { useState } from "react";
 import { api } from "@/lib/api";
 import { Topbar } from "@/components/layout/Topbar";
-import { Textarea } from "@/components/ui/textarea";
-import { Brain, Send, Loader2 } from "lucide-react";
+import { Brain, Send, Loader2, Sparkles } from "lucide-react";
 
 interface Message { role: "user" | "assistant"; content: string; }
 
@@ -37,28 +36,51 @@ export default function CentralIAPage() {
   return (
     <>
       <Topbar title="Central de IA" subtitle="Assistente inteligente do Krylo" />
-      <div className="px-7 pt-4 pb-7 flex flex-col max-w-3xl" style={{ height: "calc(100vh - 120px)" }}>
+      <div className="flex-1 px-8 pt-4 pb-8 flex flex-col" style={{ height: "calc(100vh - 120px)" }}>
         {/* Chat window */}
-        <div className="flex-1 bg-white rounded-2xl shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_2px_8px_rgba(0,0,0,0.04)] flex flex-col overflow-hidden">
+        <div className="flex-1 surface-card rounded-2xl flex flex-col overflow-hidden max-w-4xl w-full">
+          {/* Gradient header */}
+          <div
+            className="px-5 py-4 text-white relative overflow-hidden"
+            style={{
+              background: "linear-gradient(135deg,#4F46E5 0%,#7C3AED 50%,#A855F7 100%)",
+            }}
+          >
+            <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
+            <div className="relative flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                <Sparkles className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-[15px] font-bold">Krylo AI</p>
+                <p className="text-[12px] text-white/80">Assistente de vendas inteligente</p>
+              </div>
+            </div>
+          </div>
+
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-5 space-y-4">
+          <div className="flex-1 overflow-y-auto p-5 space-y-4 bg-[#FAFBFC]">
             {messages.map((m, i) => (
               <div key={i} className={`flex gap-3 ${m.role === "user" ? "flex-row-reverse" : ""}`}>
                 <div
-                  className={`h-7 w-7 rounded-full flex items-center justify-center flex-shrink-0 text-[11px] font-semibold ${
+                  className={`h-8 w-8 rounded-full flex items-center justify-center flex-shrink-0 text-[11px] font-bold ${
                     m.role === "assistant"
-                      ? "bg-[#EBF0FF] text-[#0057FF]"
-                      : "bg-[#F2F2F7] text-[#8E8E93]"
+                      ? "tint-blue text-[#4F46E5]"
+                      : "bg-[#F1F5F9] text-[#64748B]"
                   }`}
                 >
-                  {m.role === "assistant" ? <Brain className="h-3.5 w-3.5" /> : "V"}
+                  {m.role === "assistant" ? <Brain className="h-4 w-4" /> : "V"}
                 </div>
                 <div
                   className={`max-w-[80%] px-4 py-3 rounded-2xl text-[13px] leading-relaxed ${
                     m.role === "assistant"
-                      ? "bg-[#F9F9FB] text-[#1C1C1E] rounded-tl-sm shadow-[0_0_0_1px_rgba(0,0,0,0.06)]"
-                      : "bg-[#0057FF] text-white rounded-tr-sm"
+                      ? "bg-white text-[#0F172A] rounded-tl-sm border border-[rgba(15,23,42,0.06)] shadow-sm"
+                      : "text-white rounded-tr-sm"
                   }`}
+                  style={m.role === "user" ? {
+                    background: "linear-gradient(135deg,#4F46E5,#6366F1)",
+                    boxShadow: "0 2px 8px rgba(79,70,229,0.25)",
+                  } : undefined}
                 >
                   <p className="whitespace-pre-line">{m.content}</p>
                 </div>
@@ -66,14 +88,14 @@ export default function CentralIAPage() {
             ))}
             {loading && (
               <div className="flex gap-3">
-                <div className="h-7 w-7 rounded-full bg-[#EBF0FF] text-[#0057FF] flex items-center justify-center flex-shrink-0">
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                <div className="h-8 w-8 rounded-full tint-blue text-[#4F46E5] flex items-center justify-center flex-shrink-0">
+                  <Loader2 className="h-4 w-4 animate-spin" />
                 </div>
-                <div className="bg-[#F9F9FB] rounded-2xl rounded-tl-sm px-4 py-3 shadow-[0_0_0_1px_rgba(0,0,0,0.06)]">
+                <div className="bg-white rounded-2xl rounded-tl-sm px-4 py-3 border border-[rgba(15,23,42,0.06)] shadow-sm">
                   <div className="flex gap-1 items-center">
-                    <span className="h-1.5 w-1.5 bg-[#C7C7CC] rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                    <span className="h-1.5 w-1.5 bg-[#C7C7CC] rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                    <span className="h-1.5 w-1.5 bg-[#C7C7CC] rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                    <span className="h-1.5 w-1.5 bg-[#94A3B8] rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                    <span className="h-1.5 w-1.5 bg-[#94A3B8] rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                    <span className="h-1.5 w-1.5 bg-[#94A3B8] rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
                   </div>
                 </div>
               </div>
@@ -81,8 +103,8 @@ export default function CentralIAPage() {
           </div>
 
           {/* Input area */}
-          <div className="border-t border-[rgba(0,0,0,0.06)] p-4 flex gap-3 items-end">
-            <Textarea
+          <div className="border-t border-[rgba(15,23,42,0.06)] p-4 flex gap-3 items-end bg-white">
+            <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => {
@@ -90,12 +112,16 @@ export default function CentralIAPage() {
               }}
               placeholder="Digite sua mensagem… (Enter para enviar, Shift+Enter para nova linha)"
               rows={2}
-              className="flex-1 resize-none rounded-xl border border-[rgba(0,0,0,0.1)] bg-[#F9F9FB] text-[13px] focus:border-[#0057FF] focus:ring-2 focus:ring-[#0057FF]/10"
+              className="flex-1 resize-none px-3.5 py-2.5 rounded-xl bg-white border border-[rgba(15,23,42,0.08)] text-[13px] text-[#0F172A] placeholder-[#94A3B8] outline-none focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10 transition-all shadow-sm"
             />
             <button
               onClick={send}
               disabled={loading || !input.trim()}
-              className="h-10 w-10 flex items-center justify-center bg-[#0057FF] text-white rounded-xl hover:bg-[#0046CC] transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
+              className="h-10 w-10 flex items-center justify-center text-white rounded-xl disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0 transition-all active:scale-[0.96]"
+              style={{
+                background: "linear-gradient(135deg,#4F46E5,#6366F1)",
+                boxShadow: "0 4px 12px rgba(79,70,229,0.3)",
+              }}
             >
               <Send className="h-4 w-4" />
             </button>

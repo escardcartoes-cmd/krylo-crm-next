@@ -4,10 +4,9 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { Topbar } from "@/components/layout/Topbar";
+import { ButtonLink } from "@/components/ui/button-link";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CheckSquare, Calendar, Building2 } from "lucide-react";
@@ -17,6 +16,8 @@ const TIPOS = ["Ligação", "Email", "Reunião", "WhatsApp", "Visita", "Proposta
 const TIPO_ICONS: Record<string, string> = {
   Ligação: "📞", Email: "✉️", Reunião: "🗓️", WhatsApp: "💬", Visita: "🚗", Proposta: "📄", Outro: "📌",
 };
+
+const inputCls = "w-full h-10 pl-3.5 pr-3.5 rounded-xl bg-white border border-[rgba(15,23,42,0.08)] text-[13px] text-[#0F172A] placeholder-[#94A3B8] outline-none focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10 transition-all shadow-sm";
 
 export default function AtividadesPage() {
   const qc = useQueryClient();
@@ -46,37 +47,46 @@ export default function AtividadesPage() {
 
   function set(key: string, v: string | null) { setForm(p => ({ ...p, [key]: v ?? "" })); }
 
+  const items: any[] = data?.items ?? [];
+
   return (
     <>
       <Topbar
         title="Atividades"
+        subtitle={data ? `${items.length} atividade${items.length !== 1 ? "s" : ""} registrada${items.length !== 1 ? "s" : ""}` : "Histórico de interações"}
         actions={
           <button
             onClick={() => setOpen(true)}
-            className="h-9 px-4 bg-[#0057FF] text-white rounded-xl text-[13px] font-semibold hover:bg-[#0046CC] transition-colors"
+            className="h-8 px-3.5 rounded-xl text-white text-[12px] font-semibold transition-all active:scale-[0.98]"
+            style={{
+              background: "linear-gradient(135deg,#4F46E5,#6366F1)",
+              boxShadow: "0 4px 12px rgba(79,70,229,0.3)",
+            }}
           >
             + Nova atividade
           </button>
         }
       />
-      <div className="px-7 pt-4 pb-7">
+      <div className="flex-1 px-8 pt-4 pb-8 space-y-5">
         {isLoading ? (
           <div className="space-y-2">
-            {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-[68px] w-full rounded-2xl" />)}
+            {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-[72px] w-full rounded-2xl" />)}
           </div>
         ) : (
           <div className="space-y-2">
-            {(data?.items ?? []).map((a: any) => (
+            {items.map((a: any) => (
               <div
                 key={a.id}
-                className="flex items-center gap-4 px-5 py-4 bg-white rounded-2xl shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_2px_8px_rgba(0,0,0,0.04)]"
+                className="surface-card flex items-center gap-4 px-5 py-4 rounded-2xl"
               >
-                <span className="text-xl flex-shrink-0">{TIPO_ICONS[a.tipo] ?? "📌"}</span>
-                <div className="flex-1 min-w-0">
-                  <p className="text-[13px] font-semibold text-[#1C1C1E]">{a.tipo}</p>
-                  <p className="text-[12px] text-[#8E8E93] mt-0.5 truncate">{a.descricao}</p>
+                <div className="h-11 w-11 rounded-xl flex items-center justify-center flex-shrink-0 tint-blue text-xl">
+                  {TIPO_ICONS[a.tipo] ?? "📌"}
                 </div>
-                <div className="text-[12px] text-[#8E8E93] flex-shrink-0 text-right space-y-0.5">
+                <div className="flex-1 min-w-0">
+                  <p className="text-[14px] font-bold text-[#0F172A]">{a.tipo}</p>
+                  <p className="text-[12px] text-[#64748B] mt-0.5 truncate">{a.descricao}</p>
+                </div>
+                <div className="text-[12px] text-[#64748B] flex-shrink-0 text-right space-y-0.5">
                   {a.empresa_nome && (
                     <p className="flex items-center gap-1 justify-end">
                       <Building2 className="h-3 w-3" />
@@ -92,19 +102,14 @@ export default function AtividadesPage() {
                 </div>
               </div>
             ))}
-            {data?.items?.length === 0 && (
-              <div className="text-center py-16">
-                <div className="h-12 w-12 rounded-2xl bg-[#F2F2F7] flex items-center justify-center mx-auto mb-3">
-                  <CheckSquare className="h-6 w-6 text-[#C7C7CC]" />
+            {items.length === 0 && (
+              <div className="surface-card rounded-2xl py-16 text-center">
+                <div className="h-16 w-16 rounded-2xl tint-blue flex items-center justify-center mx-auto mb-4">
+                  <CheckSquare className="h-8 w-8 text-[#4F46E5]" />
                 </div>
-                <p className="text-[13px] font-semibold text-[#1C1C1E] mb-1">Nenhuma atividade registrada</p>
-                <p className="text-[12px] text-[#8E8E93] mb-4">Registre ligações, reuniões e interações</p>
-                <button
-                  onClick={() => setOpen(true)}
-                  className="h-9 px-4 bg-[#0057FF] text-white rounded-xl text-[13px] font-semibold hover:bg-[#0046CC] transition-colors"
-                >
-                  Criar primeira atividade
-                </button>
+                <p className="text-[15px] font-bold text-[#0F172A]">Nenhuma atividade registrada</p>
+                <p className="text-[13px] text-[#64748B] mt-1 mb-5">Registre ligações, reuniões e interações</p>
+                <ButtonLink href="#" size="sm">+ Criar primeira atividade</ButtonLink>
               </div>
             )}
           </div>
@@ -118,9 +123,9 @@ export default function AtividadesPage() {
           </DialogHeader>
           <form onSubmit={(e) => { e.preventDefault(); createMutation.mutate(); }} className="space-y-4">
             <div className="space-y-1.5">
-              <Label className="text-[12px] text-[#8E8E93] uppercase tracking-wider font-semibold">Tipo</Label>
+              <Label className="text-[11px] text-[#64748B] uppercase tracking-wider font-bold">Tipo</Label>
               <Select value={form.tipo} onValueChange={(v) => set("tipo", v)}>
-                <SelectTrigger className="h-9 rounded-xl border border-[rgba(0,0,0,0.1)] bg-[#F9F9FB] text-[13px]">
+                <SelectTrigger className="h-10 rounded-xl border border-[rgba(15,23,42,0.08)] bg-white text-[13px] shadow-sm">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -129,9 +134,9 @@ export default function AtividadesPage() {
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-[12px] text-[#8E8E93] uppercase tracking-wider font-semibold">Empresa</Label>
+              <Label className="text-[11px] text-[#64748B] uppercase tracking-wider font-bold">Empresa</Label>
               <Select value={form.empresa_id} onValueChange={(v) => set("empresa_id", v)}>
-                <SelectTrigger className="h-9 rounded-xl border border-[rgba(0,0,0,0.1)] bg-[#F9F9FB] text-[13px]">
+                <SelectTrigger className="h-10 rounded-xl border border-[rgba(15,23,42,0.08)] bg-white text-[13px] shadow-sm">
                   <SelectValue placeholder="Selecionar" />
                 </SelectTrigger>
                 <SelectContent>
@@ -142,36 +147,40 @@ export default function AtividadesPage() {
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-[12px] text-[#8E8E93] uppercase tracking-wider font-semibold">Data</Label>
-              <Input
+              <Label className="text-[11px] text-[#64748B] uppercase tracking-wider font-bold">Data</Label>
+              <input
                 type="date"
                 value={form.data}
                 onChange={(e) => set("data", e.target.value)}
-                className="h-9 rounded-xl border border-[rgba(0,0,0,0.1)] bg-[#F9F9FB] text-[13px]"
+                className={inputCls}
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-[12px] text-[#8E8E93] uppercase tracking-wider font-semibold">Descrição</Label>
-              <Textarea
+              <Label className="text-[11px] text-[#64748B] uppercase tracking-wider font-bold">Descrição</Label>
+              <textarea
                 value={form.descricao}
                 onChange={(e) => set("descricao", e.target.value)}
-                rows={2}
+                rows={3}
                 placeholder="Detalhes da atividade…"
-                className="rounded-xl border border-[rgba(0,0,0,0.1)] bg-[#F9F9FB] text-[13px]"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[rgba(15,23,42,0.08)] text-[13px] text-[#0F172A] placeholder-[#94A3B8] outline-none focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10 transition-all shadow-sm resize-none"
               />
             </div>
             <DialogFooter>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="h-9 px-4 bg-white border border-[rgba(0,0,0,0.1)] rounded-xl text-[13px] text-[#1C1C1E] hover:bg-[#F9F9FB] transition-colors"
+                className="h-10 px-4 rounded-xl text-[13px] font-medium text-[#64748B] hover:text-[#0F172A] hover:bg-[#F1F5F9] transition-colors"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
                 disabled={createMutation.isPending}
-                className="h-9 px-4 bg-[#0057FF] text-white rounded-xl text-[13px] font-semibold hover:bg-[#0046CC] transition-colors disabled:opacity-50"
+                className="h-10 px-5 rounded-xl text-white text-[13px] font-semibold transition-all active:scale-[0.98] disabled:opacity-50"
+                style={{
+                  background: "linear-gradient(135deg,#4F46E5,#6366F1)",
+                  boxShadow: "0 4px 12px rgba(79,70,229,0.3)",
+                }}
               >
                 {createMutation.isPending ? "Salvando…" : "Salvar"}
               </button>

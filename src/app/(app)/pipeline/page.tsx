@@ -19,11 +19,11 @@ function fmtK(v: number) {
 }
 
 const ETAPAS = [
-  { key: "prospect",   label: "Prospect",    headerBg: "bg-[#F2F2F7]", headerText: "text-[#8E8E93]",  colBg: "bg-[#F9F9FB]",   accentColor: "#8E8E93" },
-  { key: "contato",    label: "Contato",     headerBg: "bg-[#EBF0FF]", headerText: "text-[#0057FF]",  colBg: "bg-[#F5F7FF]",   accentColor: "#0057FF" },
-  { key: "proposta",   label: "Proposta",    headerBg: "bg-[#FFF9EB]", headerText: "text-[#B07C00]",  colBg: "bg-[#FFFDF5]",   accentColor: "#FF9500" },
-  { key: "negociacao", label: "Negociação",  headerBg: "bg-[#FFF3EB]", headerText: "text-[#C25A00]",  colBg: "bg-[#FFFAF5]",   accentColor: "#FF6B00" },
-  { key: "fechado",    label: "Implantação", headerBg: "bg-[#EDFAF3]", headerText: "text-[#1A7F4B]",  colBg: "bg-[#F5FDF8]",   accentColor: "#34C759" },
+  { key: "prospect",   label: "Prospect",    tint: "bg-[#F1F5F9]",    text: "text-[#64748B]", accent: "#94A3B8" },
+  { key: "contato",    label: "Contato",     tint: "tint-blue",       text: "text-[#4F46E5]", accent: "#4F46E5" },
+  { key: "proposta",   label: "Proposta",    tint: "tint-amber",      text: "text-amber-700", accent: "#F59E0B" },
+  { key: "negociacao", label: "Negociação",  tint: "bg-orange-50",    text: "text-orange-700",accent: "#F97316" },
+  { key: "fechado",    label: "Implantação", tint: "tint-emerald",    text: "text-emerald-700",accent: "#10B981" },
 ];
 
 export default function PipelinePage() {
@@ -52,30 +52,30 @@ export default function PipelinePage() {
     <>
       <Topbar
         title="Pipeline"
-        subtitle={isLoading ? undefined : `${fmt(totalPipeline)} em negociação`}
+        subtitle={isLoading ? "Pipeline de vendas" : `${fmt(totalPipeline)} em negociação`}
         actions={<ButtonLink href="/oportunidades/nova" size="sm">+ Oportunidade</ButtonLink>}
       />
-      <div className="px-7 pt-4 pb-7">
+      <div className="flex-1 px-8 pt-4 pb-8 space-y-5">
 
         {/* Summary bar */}
         {!isLoading && data && (
-          <div className="flex items-center gap-3 mb-5 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap">
             {ETAPAS.map(etapa => {
               const cards: any[] = data?.[etapa.key] ?? [];
               const total = cards.reduce((s: number, o: any) => s + (o.valor_estimado || 0), 0);
               if (cards.length === 0) return null;
               return (
-                <div key={etapa.key} className={`flex items-center gap-2 px-3 py-2 rounded-xl ${etapa.headerBg}`}>
-                  <div className="h-1.5 w-1.5 rounded-full" style={{ background: etapa.accentColor }} />
-                  <span className={`text-[11px] font-bold ${etapa.headerText}`}>{etapa.label}</span>
-                  <span className={`text-[11px] font-semibold ${etapa.headerText} opacity-70`}>{cards.length} · {fmtK(total)}</span>
+                <div key={etapa.key} className={`flex items-center gap-2 px-3 py-1.5 rounded-xl ${etapa.tint}`}>
+                  <div className="h-1.5 w-1.5 rounded-full" style={{ background: etapa.accent }} />
+                  <span className={`text-[11px] font-bold uppercase tracking-wider ${etapa.text}`}>{etapa.label}</span>
+                  <span className={`text-[11px] font-extrabold ${etapa.text}`}>{cards.length} · {fmtK(total)}</span>
                 </div>
               );
             })}
             {totalCartoes > 0 && (
-              <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#E8F9F0]">
-                <CreditCard className="h-3.5 w-3.5 text-[#1A7F4B]" />
-                <span className="text-[11px] font-bold text-[#1A7F4B]">{totalCartoes.toLocaleString("pt-BR")} cartões projetados</span>
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl tint-emerald">
+                <CreditCard className="h-3.5 w-3.5 text-emerald-700" />
+                <span className="text-[11px] font-bold text-emerald-700">{totalCartoes.toLocaleString("pt-BR")} cartões projetados</span>
               </div>
             )}
           </div>
@@ -83,7 +83,7 @@ export default function PipelinePage() {
 
         {isLoading ? (
           <div className="flex gap-3">
-            {ETAPAS.map((e) => <Skeleton key={e.key} className="h-96 w-56 flex-shrink-0 rounded-2xl" />)}
+            {ETAPAS.map((e) => <Skeleton key={e.key} className="h-96 w-64 flex-shrink-0 rounded-2xl" />)}
           </div>
         ) : (
           <div className="flex gap-3 overflow-x-auto pb-4">
@@ -94,20 +94,20 @@ export default function PipelinePage() {
               return (
                 <div
                   key={etapa.key}
-                  className={`flex-shrink-0 w-64 rounded-2xl shadow-[0_0_0_1px_rgba(0,0,0,0.06)] ${etapa.colBg} flex flex-col overflow-hidden`}
+                  className="surface-card flex-shrink-0 w-64 rounded-2xl flex flex-col overflow-hidden"
                 >
-                  <div className={`px-4 py-3 ${etapa.headerBg}`}>
+                  <div className={`px-4 py-3 ${etapa.tint}`}>
                     <div className="flex items-center justify-between">
-                      <span className={`text-[11px] font-bold uppercase tracking-wider ${etapa.headerText}`}>
+                      <span className={`text-[11px] font-bold uppercase tracking-wider ${etapa.text}`}>
                         {etapa.label}
                       </span>
-                      <span className={`text-[11px] font-semibold ${etapa.headerText} opacity-70 tabular-nums`}>
+                      <span className={`text-[11px] font-extrabold tabular-nums ${etapa.text}`}>
                         {cards.length}
                       </span>
                     </div>
-                    <div className={`text-[12px] font-bold mt-0.5 ${etapa.headerText}`}>{fmt(colTotal)}</div>
+                    <div className={`text-[13px] font-bold mt-0.5 ${etapa.text}`}>{fmt(colTotal)}</div>
                     {colCartoes > 0 && (
-                      <div className={`flex items-center gap-1 text-[10px] mt-0.5 ${etapa.headerText} opacity-70`}>
+                      <div className={`flex items-center gap-1 text-[10px] mt-0.5 ${etapa.text} opacity-80`}>
                         <CreditCard className="h-3 w-3" />
                         {colCartoes.toLocaleString("pt-BR")} cartões
                       </div>
@@ -121,27 +121,26 @@ export default function PipelinePage() {
                       return (
                         <div
                           key={op.id}
-                          className="bg-white rounded-xl shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_1px_4px_rgba(0,0,0,0.04)] overflow-hidden hover:shadow-[0_0_0_1px_rgba(0,87,255,0.2),0_4px_8px_rgba(0,87,255,0.06)] transition-all cursor-pointer group"
+                          className="bg-white rounded-xl border border-[rgba(15,23,42,0.06)] shadow-[0_1px_3px_rgba(15,23,42,0.04)] hover:shadow-[0_4px_12px_rgba(79,70,229,0.08),0_0_0_1px_rgba(79,70,229,0.2)] transition-all cursor-pointer group overflow-hidden"
                         >
-                          {/* Mini progress bar top */}
                           {progressPct > 0 && (
-                            <div className="h-0.5 w-full" style={{ background: `rgba(0,0,0,0.04)` }}>
+                            <div className="h-0.5 w-full bg-[rgba(15,23,42,0.04)]">
                               <div
                                 className="h-full rounded-full transition-all"
-                                style={{ width: `${progressPct}%`, background: etapa.accentColor }}
+                                style={{ width: `${progressPct}%`, background: etapa.accent }}
                               />
                             </div>
                           )}
                           <div className="p-3">
                             <Link href={`/oportunidades/${op.id}`}>
-                              <p className="text-[12px] font-semibold text-[#1C1C1E] truncate group-hover:text-[#0057FF] transition-colors">
+                              <p className="text-[12px] font-bold text-[#0F172A] truncate group-hover:text-[#4F46E5] transition-colors">
                                 {op.titulo}
                               </p>
-                              <p className="text-[11px] text-[#8E8E93] mt-0.5 truncate">{op.empresa_nome}</p>
+                              <p className="text-[11px] text-[#64748B] mt-0.5 truncate">{op.empresa_nome}</p>
                               <div className="flex items-center justify-between mt-2">
-                                <p className="text-[12px] font-bold text-[#1C1C1E]">{fmt(op.valor_estimado)}</p>
+                                <p className="text-[12px] font-bold text-[#0F172A]">{fmt(op.valor_estimado)}</p>
                                 {op.num_cartoes > 0 && (
-                                  <span className="flex items-center gap-1 text-[10px] text-[#8E8E93]">
+                                  <span className="flex items-center gap-1 text-[10px] text-[#64748B]">
                                     <CreditCard className="h-3 w-3" />
                                     {op.num_cartoes.toLocaleString("pt-BR")}
                                   </span>
@@ -153,7 +152,7 @@ export default function PipelinePage() {
                                 <button
                                   key={e.key}
                                   onClick={() => moveMutation.mutate({ id: op.id, etapa: e.key })}
-                                  className={`text-[10px] px-1.5 py-0.5 rounded-lg ${e.headerBg} ${e.headerText} hover:opacity-80 transition-opacity font-medium`}
+                                  className={`text-[10px] px-1.5 py-0.5 rounded-md ${e.tint} ${e.text} hover:opacity-80 transition-opacity font-semibold`}
                                 >
                                   → {e.label}
                                 </button>
@@ -165,8 +164,8 @@ export default function PipelinePage() {
                     })}
                     {cards.length === 0 && (
                       <div className="flex flex-col items-center py-8 text-center">
-                        <Target className="h-5 w-5 text-[#C7C7CC] mb-1.5" />
-                        <p className="text-[11px] text-[#C7C7CC]">Vazio</p>
+                        <Target className="h-5 w-5 text-[#CBD5E1] mb-1.5" />
+                        <p className="text-[11px] text-[#94A3B8]">Vazio</p>
                       </div>
                     )}
                   </div>

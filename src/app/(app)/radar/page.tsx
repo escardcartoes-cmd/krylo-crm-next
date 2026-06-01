@@ -5,16 +5,17 @@ import { api } from "@/lib/api";
 import { Topbar } from "@/components/layout/Topbar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Radar } from "lucide-react";
+import Link from "next/link";
 
 function fmt(v: number) {
   return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 }).format(v);
 }
 
-const ETAPA_STYLES: Record<string, { bg: string; text: string }> = {
-  prospect:   { bg: "bg-[#F2F2F7]", text: "text-[#8E8E93]" },
-  contato:    { bg: "bg-[#EBF0FF]", text: "text-[#0057FF]" },
-  proposta:   { bg: "bg-[#FFF9EB]", text: "text-[#B07C00]" },
-  negociacao: { bg: "bg-[#FFF3EB]", text: "text-[#C25A00]" },
+const ETAPA_STYLES: Record<string, { bg: string; text: string; label: string }> = {
+  prospect:   { bg: "bg-[#F1F5F9]", text: "text-[#64748B]",  label: "Prospecção" },
+  contato:    { bg: "tint-blue",    text: "text-[#4F46E5]",  label: "Contato" },
+  proposta:   { bg: "tint-amber",   text: "text-amber-700",  label: "Proposta" },
+  negociacao: { bg: "bg-orange-50", text: "text-orange-700", label: "Negociação" },
 };
 
 export default function RadarPage() {
@@ -29,57 +30,64 @@ export default function RadarPage() {
 
   return (
     <>
-      <Topbar title="Radar de Mercado" subtitle="Oportunidades ativas no radar comercial" />
-      <div className="px-7 pt-4 pb-7">
+      <Topbar
+        title="Radar de Mercado"
+        subtitle={`${oportunidades.length} oportunidade${oportunidades.length !== 1 ? "s" : ""} ativa${oportunidades.length !== 1 ? "s" : ""}`}
+      />
+      <div className="flex-1 px-8 pt-4 pb-8 space-y-5">
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-            {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-28 w-full rounded-2xl" />)}
+            {[...Array(6)].map((_, i) => <Skeleton key={i} className="h-32 w-full rounded-2xl" />)}
           </div>
         ) : oportunidades.length === 0 ? (
-          <div className="text-center py-16">
-            <div className="h-12 w-12 rounded-2xl bg-[#F2F2F7] flex items-center justify-center mx-auto mb-3">
-              <Radar className="h-6 w-6 text-[#C7C7CC]" />
+          <div className="surface-card rounded-2xl py-16 text-center">
+            <div className="h-16 w-16 rounded-2xl tint-violet flex items-center justify-center mx-auto mb-4">
+              <Radar className="h-8 w-8 text-violet-600" />
             </div>
-            <p className="text-[13px] font-semibold text-[#1C1C1E] mb-1">Nenhuma oportunidade ativa no radar</p>
-            <p className="text-[12px] text-[#8E8E93]">Crie oportunidades para acompanhar aqui</p>
+            <p className="text-[15px] font-bold text-[#0F172A]">Nenhuma oportunidade ativa no radar</p>
+            <p className="text-[13px] text-[#64748B] mt-1">Crie oportunidades para acompanhar aqui</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
             {oportunidades.map((o: any) => {
-              const etapaStyle = ETAPA_STYLES[o.etapa] ?? { bg: "bg-[#F2F2F7]", text: "text-[#8E8E93]" };
+              const etapaStyle = ETAPA_STYLES[o.etapa] ?? { bg: "bg-[#F1F5F9]", text: "text-[#64748B]", label: o.etapa };
               return (
-                <div
+                <Link
                   key={o.id}
-                  className="bg-white rounded-2xl shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_0_0_1px_rgba(0,87,255,0.2),0_4px_12px_rgba(0,87,255,0.08)] transition-all px-5 py-4"
+                  href={`/oportunidades/${o.id}`}
+                  className="surface-card surface-card-hover rounded-2xl px-5 py-4 transition-all"
                 >
                   <div className="flex items-start justify-between gap-2 mb-3">
                     <div className="min-w-0">
-                      <p className="text-[13px] font-semibold text-[#1C1C1E] truncate">{o.titulo}</p>
-                      <p className="text-[12px] text-[#8E8E93] mt-0.5">{o.empresa_nome}</p>
+                      <p className="text-[14px] font-bold text-[#0F172A] truncate">{o.titulo}</p>
+                      <p className="text-[12px] text-[#64748B] mt-0.5 truncate">{o.empresa_nome}</p>
                     </div>
-                    <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-lg flex-shrink-0 ${etapaStyle.bg} ${etapaStyle.text}`}>
-                      {o.etapa}
+                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md flex-shrink-0 ${etapaStyle.bg} ${etapaStyle.text}`}>
+                      {etapaStyle.label}
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-[12px]">
-                    <span className="text-[#8E8E93]">{o.responsavel || "Sem responsável"}</span>
-                    <span className="font-semibold text-[#1C1C1E]">{fmt(o.valor_estimado)}</span>
+                    <span className="text-[#64748B]">{o.responsavel || "Sem responsável"}</span>
+                    <span className="font-bold text-[#0F172A]">{fmt(o.valor_estimado)}</span>
                   </div>
                   {o.score_fechamento != null && (
                     <div className="mt-3">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-[11px] text-[#8E8E93]">Score fechamento</span>
-                        <span className="text-[11px] font-semibold text-[#0057FF]">{o.score_fechamento}%</span>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-[11px] text-[#64748B] font-semibold">Score fechamento</span>
+                        <span className="text-[11px] font-bold text-[#4F46E5]">{o.score_fechamento}%</span>
                       </div>
-                      <div className="h-1.5 bg-[#F2F2F7] rounded-full overflow-hidden">
+                      <div className="h-1.5 bg-[#F1F5F9] rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-[#0057FF] rounded-full transition-all"
-                          style={{ width: `${o.score_fechamento}%` }}
+                          className="h-full rounded-full transition-all"
+                          style={{
+                            width: `${o.score_fechamento}%`,
+                            background: "linear-gradient(90deg,#4F46E5,#7C3AED)",
+                          }}
                         />
                       </div>
                     </div>
                   )}
-                </div>
+                </Link>
               );
             })}
           </div>

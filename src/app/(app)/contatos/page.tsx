@@ -8,18 +8,18 @@ import { ButtonLink } from "@/components/ui/button-link";
 import { Search, User, Mail, Phone, Building2, ChevronRight } from "lucide-react";
 import Link from "next/link";
 
-const GRADIENT_PAIRS = [
-  ["#0057FF", "#6B8EFF"],
-  ["#AF52DE", "#DA8FFF"],
-  ["#1A7F4B", "#34C759"],
-  ["#FF9500", "#FFCC44"],
-  ["#FF3B30", "#FF6B6B"],
-  ["#00C7BE", "#34C7C7"],
+const GRADIENT_PAIRS: [string, string][] = [
+  ["#4F46E5", "#7C3AED"],
+  ["#7C3AED", "#A855F7"],
+  ["#0EA5E9", "#22D3EE"],
+  ["#10B981", "#34D399"],
+  ["#F59E0B", "#FBBF24"],
+  ["#EF4444", "#F87171"],
 ];
 
 function getGradient(name: string): [string, string] {
   const idx = (name?.charCodeAt(0) ?? 0) % GRADIENT_PAIRS.length;
-  return GRADIENT_PAIRS[idx] as [string, string];
+  return GRADIENT_PAIRS[idx];
 }
 
 function getInitials(name: string) {
@@ -43,33 +43,32 @@ export default function ContatosPage() {
     <>
       <Topbar
         title="Contatos"
-        subtitle={data ? `${data.total} contato${data.total !== 1 ? "s" : ""}` : ""}
+        subtitle={data ? `${data.total} ${data.total === 1 ? "contato" : "contatos"}` : "Contatos cadastrados"}
         actions={<ButtonLink href="/contatos/novo" size="sm">+ Novo contato</ButtonLink>}
       />
-      <div className="px-7 pt-4 pb-7">
-        {/* Search bar */}
-        <div className="flex gap-2 mb-5">
-          <div className="relative flex-1 max-w-sm">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#8E8E93]" />
+      <div className="flex-1 px-8 pt-4 pb-8 space-y-5">
+
+        {/* Search row */}
+        <div className="flex gap-2.5">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#64748B]" />
             <input
-              className="w-full h-9 pl-9 pr-3 rounded-xl bg-white border border-[rgba(0,0,0,0.08)] text-[13px] text-[#1C1C1E] placeholder-[#C7C7CC] outline-none focus:border-[#0057FF] focus:ring-2 focus:ring-[#0057FF]/10 transition-all shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
+              className="w-full h-10 pl-10 pr-3.5 rounded-xl bg-white border border-[rgba(15,23,42,0.08)] text-[13px] text-[#0F172A] placeholder-[#94A3B8] outline-none focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10 transition-all shadow-sm"
               placeholder="Buscar por nome, e-mail ou cargo…"
               value={q}
               onChange={(e) => setQ(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && setSearch(q)}
             />
           </div>
-          <button
-            onClick={() => setSearch(q)}
-            className="h-9 px-4 rounded-xl bg-white border border-[rgba(0,0,0,0.08)] text-[13px] font-medium text-[#3A3A3C] hover:bg-[#F2F2F7] transition-colors shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
-          >
-            Buscar
-          </button>
+          <button onClick={() => setSearch(q)}
+            className="h-10 px-5 rounded-xl text-white text-[13px] font-semibold transition-all active:scale-[0.98]"
+            style={{
+              background: "linear-gradient(135deg,#4F46E5,#6366F1)",
+              boxShadow: "0 4px 12px rgba(79,70,229,0.3)",
+            }}>Buscar</button>
           {search && (
-            <button
-              onClick={() => { setQ(""); setSearch(""); }}
-              className="h-9 px-4 rounded-xl text-[13px] font-medium text-[#8E8E93] hover:text-[#3A3A3C] hover:bg-[rgba(0,0,0,0.04)] transition-colors"
-            >
+            <button onClick={() => { setQ(""); setSearch(""); }}
+              className="h-10 px-4 rounded-xl text-[13px] font-medium text-[#64748B] hover:text-[#0F172A] hover:bg-white/60 transition-colors">
               Limpar
             </button>
           )}
@@ -77,7 +76,7 @@ export default function ContatosPage() {
 
         {isLoading ? (
           <div className="space-y-2">
-            {[...Array(6)].map((_, i) => <div key={i} className="h-[72px] bg-white rounded-2xl animate-pulse shadow-[0_0_0_1px_rgba(0,0,0,0.06)]" />)}
+            {[...Array(6)].map((_, i) => <div key={i} className="h-[78px] surface-card rounded-2xl animate-pulse" />)}
           </div>
         ) : (
           <div className="space-y-2">
@@ -87,9 +86,8 @@ export default function ContatosPage() {
                 <Link
                   key={c.id}
                   href={`/contatos/${c.id}/editar`}
-                  className="flex items-center gap-4 px-5 py-4 bg-white rounded-2xl shadow-[0_0_0_1px_rgba(0,0,0,0.06)] hover:shadow-[0_0_0_1px_rgba(0,87,255,0.2),0_4px_12px_rgba(0,87,255,0.08)] transition-all group"
+                  className="surface-card surface-card-hover flex items-center gap-4 px-5 py-4 rounded-2xl group transition-all"
                 >
-                  {/* Avatar */}
                   <div
                     className="h-11 w-11 rounded-full flex items-center justify-center text-white text-[14px] font-bold flex-shrink-0 shadow-sm"
                     style={{ background: `linear-gradient(135deg, ${g1}, ${g2})` }}
@@ -97,17 +95,16 @@ export default function ContatosPage() {
                     {getInitials(c.nome)}
                   </div>
 
-                  {/* Main info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <p className="text-[14px] font-semibold text-[#1C1C1E]">{c.nome}</p>
+                      <p className="text-[14px] font-bold text-[#0F172A] truncate">{c.nome}</p>
                       {c.cargo && (
-                        <span className="text-[11px] text-[#8E8E93] bg-[#F2F2F7] px-2 py-0.5 rounded-lg flex-shrink-0">{c.cargo}</span>
+                        <span className="text-[11px] font-semibold text-[#64748B] bg-[#F1F5F9] px-2 py-0.5 rounded-md flex-shrink-0">{c.cargo}</span>
                       )}
                     </div>
                     {c.empresa_nome && (
                       <div className="flex items-center gap-1 mt-1">
-                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-lg bg-[#EEF3FF] text-[#0057FF]">
+                        <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-md tint-blue text-[#4F46E5]">
                           <Building2 className="h-3 w-3" />
                           {c.empresa_nome}
                         </span>
@@ -115,10 +112,9 @@ export default function ContatosPage() {
                     )}
                   </div>
 
-                  {/* Contact info */}
-                  <div className="flex items-center gap-4 text-[12px] text-[#8E8E93] flex-shrink-0">
+                  <div className="flex items-center gap-4 text-[12px] text-[#64748B] flex-shrink-0">
                     {c.email && (
-                      <span className="flex items-center gap-1 hidden sm:flex">
+                      <span className="hidden sm:flex items-center gap-1">
                         <Mail className="h-3 w-3" />
                         {c.email}
                       </span>
@@ -129,19 +125,19 @@ export default function ContatosPage() {
                         {c.telefone}
                       </span>
                     )}
-                    <ChevronRight className="h-4 w-4 text-[#C7C7CC] group-hover:text-[#0057FF] transition-colors" />
+                    <ChevronRight className="h-4 w-4 text-[#CBD5E1] group-hover:text-[#4F46E5] transition-colors" />
                   </div>
                 </Link>
               );
             })}
             {items.length === 0 && (
-              <div className="text-center py-20">
-                <div className="h-16 w-16 rounded-full bg-gradient-to-br from-[#EEF3FF] to-[#D6E4FF] flex items-center justify-center mx-auto mb-4">
-                  <User className="h-8 w-8 text-[#0057FF]" />
+              <div className="surface-card rounded-2xl py-16 text-center">
+                <div className="h-16 w-16 rounded-2xl tint-blue flex items-center justify-center mx-auto mb-4">
+                  <User className="h-8 w-8 text-[#4F46E5]" />
                 </div>
-                <p className="text-[15px] font-bold text-[#3A3A3C]">Nenhum contato encontrado</p>
-                <p className="text-[13px] text-[#8E8E93] mt-1 mb-5">Comece adicionando o primeiro contato</p>
-                <ButtonLink href="/contatos/novo" size="sm">Criar primeiro contato</ButtonLink>
+                <p className="text-[15px] font-bold text-[#0F172A]">Nenhum contato encontrado</p>
+                <p className="text-[13px] text-[#64748B] mt-1 mb-5">Comece adicionando o primeiro contato</p>
+                <ButtonLink href="/contatos/novo" size="sm">+ Criar contato</ButtonLink>
               </div>
             )}
           </div>
