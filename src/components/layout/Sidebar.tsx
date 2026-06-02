@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+import { Logo } from "@/components/brand/Logo";
 import {
   LayoutDashboard, Bot, Phone, Mail, Brain,
   HelpCircle, Radar, Building2, Users, Target,
@@ -100,28 +101,20 @@ export function Sidebar() {
       }}
     >
       {/* Brand */}
-      <div className="px-4 pt-5 pb-4 relative">
+      <Link href="/dashboard" className="px-4 pt-5 pb-4 relative block hover:bg-[rgba(79,70,229,0.03)] transition-colors">
         <div className="absolute inset-x-0 top-0 h-24 opacity-60 pointer-events-none"
              style={{ background: "radial-gradient(circle at 50% 0%, rgba(79,70,229,0.12), transparent 70%)" }} />
         <div className="relative flex items-center gap-2.5">
-          <div
-            className="h-9 w-9 rounded-xl flex items-center justify-center text-white font-bold text-[14px] flex-shrink-0"
-            style={{
-              background: "linear-gradient(135deg,#4F46E5 0%,#7C3AED 100%)",
-              boxShadow: "0 4px 12px rgba(79,70,229,0.35), 0 0 0 1px rgba(255,255,255,0.6) inset",
-            }}
-          >
-            K
-          </div>
+          <Logo variant="mark" size={36} />
           <div className="min-w-0 flex-1">
-            <p className="text-[14px] font-bold text-[#0F172A] leading-tight tracking-[-0.2px]">Krylo</p>
-            <div className="flex items-center gap-1 mt-0.5">
+            <p className="text-[16px] font-extrabold text-[#0F172A] leading-none tracking-[-0.4px]">Krylo</p>
+            <div className="flex items-center gap-1 mt-1">
               <Sparkles className="h-2.5 w-2.5 text-[#4F46E5]" />
-              <span className="text-[9px] font-semibold uppercase tracking-wider text-[#4F46E5]">Starter</span>
+              <span className="text-[9px] font-bold uppercase tracking-wider text-[#4F46E5]">Starter</span>
             </div>
           </div>
         </div>
-      </div>
+      </Link>
 
       {/* Search */}
       <div className="px-3 pb-3">
