@@ -4,13 +4,12 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { Topbar } from "@/components/layout/Topbar";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Mail, Phone } from "lucide-react";
 
-const STATUS_STYLES: Record<string, { bg: string; text: string }> = {
-  pendente:   { bg: "tint-amber",    text: "text-amber-700" },
-  enviado:    { bg: "tint-blue",     text: "text-[#4F46E5]" },
-  respondido: { bg: "tint-emerald",  text: "text-emerald-700" },
-  cancelado:  { bg: "bg-[#F1F5F9]",  text: "text-[#64748B]" },
+const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }> = {
+  pendente:   { bg: "bg-amber-100",   text: "text-amber-700",   label: "Pendente" },
+  enviado:    { bg: "bg-sky-100",     text: "text-sky-700",     label: "Enviado" },
+  respondido: { bg: "bg-emerald-100", text: "text-emerald-700", label: "Respondido" },
+  cancelado:  { bg: "bg-slate-100",   text: "text-slate-600",   label: "Cancelado" },
 };
 
 export default function CadenciasPage() {
@@ -23,57 +22,39 @@ export default function CadenciasPage() {
 
   return (
     <>
-      <Topbar
-        title="Cadências SDR"
-        subtitle={data ? `${items.length} cadência${items.length !== 1 ? "s" : ""} ativa${items.length !== 1 ? "s" : ""}` : "Follow-ups automáticos"}
-      />
-      <div className="flex-1 px-8 pt-4 pb-8 space-y-5">
+      <Topbar title="Cadências" />
+      <div className="flex-1 px-8 pt-4 pb-8 space-y-4">
         {isLoading ? (
-          <div className="space-y-2">
-            {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-[78px] w-full rounded-2xl" />)}
+          <div className="surface-card rounded-xl divide-y divide-[#F1F5F9]">
+            {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-[60px]" />)}
+          </div>
+        ) : items.length === 0 ? (
+          <div className="surface-card rounded-xl py-16 text-center">
+            <p className="text-[14px] text-[#475569]">Nenhuma cadência ativa.</p>
           </div>
         ) : (
-          <div className="space-y-2">
-            {items.map((c: any) => {
-              const statusStyle = STATUS_STYLES[c.status] ?? STATUS_STYLES.pendente;
-              return (
-                <div
-                  key={c.id}
-                  className="surface-card flex items-center gap-4 px-5 py-4 rounded-2xl"
-                >
-                  <div className="flex items-center gap-1.5 flex-shrink-0">
-                    {c.canal_email && (
-                      <div className="h-9 w-9 rounded-xl tint-blue flex items-center justify-center">
-                        <Mail className="h-4 w-4 text-[#4F46E5]" />
+          <div className="surface-card rounded-xl overflow-hidden">
+            <ul className="divide-y divide-[#F1F5F9]">
+              {items.map((c) => {
+                const st = STATUS_STYLES[c.status] ?? STATUS_STYLES.pendente;
+                const canais = [c.canal_email && "Email", c.canal_whatsapp && "WhatsApp"].filter(Boolean).join(" · ");
+                return (
+                  <li key={c.id} className="flex items-center gap-4 px-5 py-3.5 hover:bg-[#F8FAFC]">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[14px] font-medium text-[#0F172A] truncate">{c.empresa_nome}</p>
+                      <div className="flex items-center gap-3 mt-0.5 text-[12px] text-[#64748B]">
+                        <span>Etapa {c.etapa}</span>
+                        {canais && <span>{canais}</span>}
+                        {c.data_acao && <span className="tabular-nums">{c.data_acao}</span>}
                       </div>
-                    )}
-                    {c.canal_whatsapp && (
-                      <div className="h-9 w-9 rounded-xl tint-emerald flex items-center justify-center">
-                        <Phone className="h-4 w-4 text-emerald-700" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[14px] font-bold text-[#0F172A] truncate">{c.empresa_nome}</p>
-                    <p className="text-[12px] text-[#64748B] mt-0.5">
-                      Etapa: <span className="font-semibold">{c.etapa}</span> · {c.data_acao}
-                    </p>
-                  </div>
-                  <span className={`text-[11px] font-bold px-2 py-1 rounded-md flex-shrink-0 ${statusStyle.bg} ${statusStyle.text}`}>
-                    {c.status || "pendente"}
-                  </span>
-                </div>
-              );
-            })}
-            {items.length === 0 && (
-              <div className="surface-card rounded-2xl py-16 text-center">
-                <div className="h-16 w-16 rounded-2xl tint-blue flex items-center justify-center mx-auto mb-4">
-                  <Mail className="h-8 w-8 text-[#4F46E5]" />
-                </div>
-                <p className="text-[15px] font-bold text-[#0F172A]">Nenhuma cadência ativa</p>
-                <p className="text-[13px] text-[#64748B] mt-1">Execute o SDR Evolutivo para gerar cadências</p>
-              </div>
-            )}
+                    </div>
+                    <span className={`inline-flex items-center text-[11px] font-medium px-1.5 py-0.5 rounded ${st.bg} ${st.text}`}>
+                      {st.label}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
           </div>
         )}
       </div>

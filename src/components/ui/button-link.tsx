@@ -5,37 +5,26 @@ type Variant = "default" | "outline" | "ghost" | "secondary" | "destructive";
 type Size = "xs" | "sm" | "default" | "icon";
 
 const base =
-  "inline-flex shrink-0 items-center justify-center font-semibold whitespace-nowrap transition-all duration-150 select-none cursor-pointer";
+  "inline-flex shrink-0 items-center justify-center font-medium whitespace-nowrap transition-colors duration-100 select-none cursor-pointer";
 
 const variants: Record<Variant, string> = {
   default:
-    "text-white rounded-xl active:scale-[0.98]",
+    "bg-[#4F46E5] text-white rounded-lg hover:bg-[#4338CA] active:bg-[#3730A3]",
   outline:
-    "bg-white text-[#334155] border border-[rgba(15,23,42,0.1)] rounded-xl hover:bg-[#F8FAFC] hover:border-[rgba(79,70,229,0.3)] active:scale-[0.98]",
+    "bg-white text-[#0F172A] border border-[#CBD5E1] rounded-lg hover:bg-[#F8FAFC] hover:border-[#94A3B8]",
   ghost:
-    "text-[#475569] rounded-xl hover:bg-[rgba(79,70,229,0.06)] hover:text-[#4F46E5]",
+    "text-[#475569] rounded-lg hover:bg-[#F1F5F9] hover:text-[#0F172A]",
   secondary:
-    "bg-[#F1F5F9] text-[#334155] rounded-xl hover:bg-[#E2E8F0] active:scale-[0.98]",
+    "bg-[#F1F5F9] text-[#0F172A] rounded-lg hover:bg-[#E2E8F0]",
   destructive:
-    "bg-[#EF4444] text-white rounded-xl hover:bg-[#DC2626] active:scale-[0.98]",
-};
-
-const defaultStyle: Record<Variant, React.CSSProperties | undefined> = {
-  default: {
-    background: "linear-gradient(135deg,#4F46E5 0%,#6366F1 100%)",
-    boxShadow: "0 1px 0 0 rgba(255,255,255,0.2) inset, 0 4px 12px rgba(79,70,229,0.3), 0 1px 3px rgba(79,70,229,0.2)",
-  },
-  outline: { boxShadow: "0 1px 2px rgba(15,23,42,0.04)" },
-  ghost: undefined,
-  secondary: undefined,
-  destructive: { boxShadow: "0 4px 12px rgba(239,68,68,0.25)" },
+    "bg-[#DC2626] text-white rounded-lg hover:bg-[#B91C1C]",
 };
 
 const sizes: Record<Size, string> = {
-  xs:      "h-7 px-2.5 text-[11px] gap-1",
-  sm:      "h-8 px-3.5 text-[12px] gap-1.5",
-  default: "h-10 px-5 text-[13px] gap-2",
-  icon:    "h-10 w-10",
+  xs:      "h-7 px-2.5 text-[12px] gap-1",
+  sm:      "h-8 px-3.5 text-[13px] gap-1.5",
+  default: "h-9 px-4 text-[13px] gap-2",
+  icon:    "h-9 w-9",
 };
 
 interface Props {
@@ -48,11 +37,7 @@ interface Props {
 
 export function ButtonLink({ href, children, variant = "default", size = "default", className }: Props) {
   return (
-    <Link
-      href={href}
-      className={cn(base, variants[variant], sizes[size], className)}
-      style={defaultStyle[variant]}
-    >
+    <Link href={href} className={cn(base, variants[variant], sizes[size], className)}>
       {children}
     </Link>
   );

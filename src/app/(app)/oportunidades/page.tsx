@@ -6,7 +6,7 @@ import { api } from "@/lib/api";
 import { Topbar } from "@/components/layout/Topbar";
 import { ButtonLink } from "@/components/ui/button-link";
 import { exportCSV } from "@/lib/export";
-import { Search, Target, CreditCard, ChevronRight, DollarSign, Download } from "lucide-react";
+import { Search, ChevronRight, Download } from "lucide-react";
 import Link from "next/link";
 
 function fmt(v: number) {
@@ -14,15 +14,15 @@ function fmt(v: number) {
 }
 
 const ETAPA_STYLES: Record<string, { bg: string; text: string; label: string }> = {
-  prospect:   { bg: "bg-[#F1F5F9]",   text: "text-[#64748B]",  label: "Prospecção" },
-  contato:    { bg: "tint-blue",      text: "text-[#4F46E5]",  label: "Contato" },
-  proposta:   { bg: "tint-amber",     text: "text-amber-700",  label: "Proposta" },
-  negociacao: { bg: "bg-orange-50",   text: "text-orange-700", label: "Negociação" },
-  fechado:    { bg: "tint-emerald",   text: "text-emerald-700",label: "Implantação" },
-  perdido:    { bg: "tint-rose",      text: "text-rose-700",   label: "Perdido" },
+  prospect:   { bg: "bg-slate-100",   text: "text-slate-700",   label: "Prospect" },
+  contato:    { bg: "bg-sky-100",     text: "text-sky-700",     label: "Contato" },
+  proposta:   { bg: "bg-amber-100",   text: "text-amber-700",   label: "Proposta" },
+  negociacao: { bg: "bg-orange-100",  text: "text-orange-700",  label: "Negociação" },
+  fechado:    { bg: "bg-emerald-100", text: "text-emerald-700", label: "Implantação" },
+  perdido:    { bg: "bg-rose-100",    text: "text-rose-700",    label: "Perdido" },
 };
 
-const ETAPA_OPTIONS: { value: string; label: string }[] = [
+const ETAPA_OPTIONS = [
   { value: "todas",      label: "Todas" },
   { value: "prospect",   label: "Prospect" },
   { value: "contato",    label: "Contato" },
@@ -35,7 +35,7 @@ const ETAPA_OPTIONS: { value: string; label: string }[] = [
 export default function OportunidadesPage() {
   const [q, setQ] = useState("");
   const [search, setSearch] = useState("");
-  const [etapaFilter, setEtapaFilter] = useState<string>("todas");
+  const [etapaFilter, setEtapaFilter] = useState("todas");
 
   const { data, isLoading } = useQuery({
     queryKey: ["oportunidades", search],
@@ -45,8 +45,15 @@ export default function OportunidadesPage() {
   const allItems: any[] = data?.items ?? [];
   const items = allItems.filter((o) => etapaFilter === "todas" || o.etapa === etapaFilter);
 
-  const totalPipeline = items.reduce((s, o) => s + (o.valor_estimado || 0), 0);
-  const totalCartoes = items.reduce((s, o) => s + (o.num_cartoes || 0), 0);
+  const counts: Record<string, number> = {
+    todas: allItems.length,
+    ...Object.fromEntries(
+      ETAPA_OPTIONS.filter(o => o.value !== "todas").map(o => [
+        o.value,
+        allItems.filter(i => i.etapa === o.value).length,
+      ])
+    ),
+  };
 
   const handleExport = () => {
     exportCSV("oportunidades.csv", items, [
@@ -57,7 +64,7 @@ export default function OportunidadesPage() {
       { key: "num_cartoes", label: "Nº Cartões" },
       { key: "valor_mensal", label: "Valor Mensal" },
       { key: "responsavel", label: "Responsável" },
-      { key: "previsao_fechamento", label: "Previsão de Fechamento" },
+      { key: "previsao_fechamento", label: "Previsão" },
     ]);
   };
 
@@ -65,149 +72,99 @@ export default function OportunidadesPage() {
     <>
       <Topbar
         title="Oportunidades"
-        subtitle={data ? `${data.total} oportunidade${data.total !== 1 ? "s" : ""}` : "Oportunidades em negociação"}
         actions={
           <>
-            <ButtonLink href="/pipeline" variant="outline" size="sm">Ver Pipeline</ButtonLink>
-            <button
-              onClick={handleExport}
-              disabled={items.length === 0}
-              className="inline-flex shrink-0 items-center justify-center font-semibold whitespace-nowrap transition-all duration-150 select-none cursor-pointer bg-white text-[#334155] border border-[rgba(15,23,42,0.1)] rounded-xl hover:bg-[#F8FAFC] hover:border-[rgba(79,70,229,0.3)] active:scale-[0.98] h-8 px-3.5 text-[12px] gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{ boxShadow: "0 1px 2px rgba(15,23,42,0.04)" }}
-            >
-              <Download className="h-3.5 w-3.5" />
-              Exportar CSV
+            <ButtonLink href="/pipeline" variant="outline" size="sm">Pipeline</ButtonLink>
+            <button onClick={handleExport} disabled={items.length === 0}
+              className="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-lg text-[13px] font-medium text-[#475569] bg-white border border-[#CBD5E1] hover:bg-[#F8FAFC] hover:border-[#94A3B8] disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+              <Download className="h-3.5 w-3.5" />Exportar
             </button>
-            <ButtonLink href="/oportunidades/nova" size="sm">+ Nova oportunidade</ButtonLink>
+            <ButtonLink href="/oportunidades/nova" size="sm">Nova oportunidade</ButtonLink>
           </>
         }
       />
-      <div className="flex-1 px-8 pt-4 pb-8 space-y-5">
+      <div className="flex-1 px-8 pt-4 pb-8 space-y-4">
 
-        {/* Stat pills */}
-        {!isLoading && items.length > 0 && (
-          <div className="flex items-center gap-2 flex-wrap">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl tint-blue">
-              <DollarSign className="h-3.5 w-3.5 text-[#4F46E5]" />
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#4F46E5]">Pipeline</span>
-              <span className="text-[13px] font-extrabold text-[#4F46E5]">{fmt(totalPipeline)}</span>
-            </div>
-            {totalCartoes > 0 && (
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl tint-emerald">
-                <CreditCard className="h-3.5 w-3.5 text-emerald-700" />
-                <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Cartões</span>
-                <span className="text-[13px] font-extrabold text-emerald-700">{totalCartoes.toLocaleString("pt-BR")}</span>
-              </div>
-            )}
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex items-center gap-1 flex-wrap">
+            {ETAPA_OPTIONS.map((o) => (
+              <button
+                key={o.value}
+                onClick={() => setEtapaFilter(o.value)}
+                className={`h-8 px-3 rounded-lg text-[13px] font-medium transition-colors ${
+                  etapaFilter === o.value
+                    ? "bg-[#0F172A] text-white"
+                    : "text-[#475569] hover:bg-[#F1F5F9]"
+                }`}
+              >
+                {o.label}
+                <span className={`ml-1.5 text-[11px] tabular-nums ${
+                  etapaFilter === o.value ? "text-white/60" : "text-[#94A3B8]"
+                }`}>{counts[o.value] ?? 0}</span>
+              </button>
+            ))}
           </div>
-        )}
-
-        {/* Search */}
-        <div className="flex gap-2.5">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#64748B]" />
+          <div className="relative flex-1 max-w-xs">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#94A3B8]" />
             <input
-              className="w-full h-10 pl-10 pr-3.5 rounded-xl bg-white border border-[rgba(15,23,42,0.08)] text-[13px] text-[#0F172A] placeholder-[#94A3B8] outline-none focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10 transition-all shadow-sm"
+              className="w-full h-9 pl-9 pr-3 rounded-lg bg-white border border-[#CBD5E1] text-[13px] text-[#0F172A] placeholder-[#94A3B8] outline-none focus:border-[#4F46E5] focus:ring-2 focus:ring-[#4F46E5]/15 transition-colors"
               placeholder="Buscar por título ou empresa…"
               value={q}
               onChange={(e) => setQ(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && setSearch(q)}
             />
           </div>
-          <button onClick={() => setSearch(q)}
-            className="h-10 px-5 rounded-xl text-white text-[13px] font-semibold transition-all active:scale-[0.98]"
-            style={{
-              background: "linear-gradient(135deg,#4F46E5,#6366F1)",
-              boxShadow: "0 4px 12px rgba(79,70,229,0.3)",
-            }}>Buscar</button>
-          {search && (
-            <button onClick={() => { setQ(""); setSearch(""); }}
-              className="h-10 px-4 rounded-xl text-[13px] font-medium text-[#64748B] hover:text-[#0F172A] hover:bg-white/60 transition-colors">
-              Limpar
-            </button>
-          )}
-        </div>
-
-        {/* Filter pills */}
-        <div className="flex items-center gap-2 flex-wrap">
-          {ETAPA_OPTIONS.map((opt) => (
-            <button
-              key={opt.value}
-              onClick={() => setEtapaFilter(opt.value)}
-              className={`px-3 py-1.5 rounded-xl text-[12px] font-bold transition-all ${
-                etapaFilter === opt.value
-                  ? "bg-[#4F46E5] text-white shadow-[0_4px_12px_rgba(79,70,229,0.3)]"
-                  : "bg-white border border-[rgba(15,23,42,0.08)] text-[#475569] hover:bg-[#F8FAFC]"
-              }`}
-            >
-              {opt.label}
-            </button>
-          ))}
         </div>
 
         {isLoading ? (
-          <div className="space-y-2">
-            {[...Array(6)].map((_, i) => <div key={i} className="h-[78px] surface-card rounded-2xl animate-pulse" />)}
+          <div className="surface-card rounded-xl divide-y divide-[#F1F5F9]">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="h-[64px] px-5 py-4 animate-pulse" />
+            ))}
+          </div>
+        ) : items.length === 0 ? (
+          <div className="surface-card rounded-xl py-16 text-center">
+            <p className="text-[14px] text-[#475569]">Nenhuma oportunidade encontrada.</p>
+            <ButtonLink href="/oportunidades/nova" size="sm" className="mt-4">Criar oportunidade</ButtonLink>
           </div>
         ) : (
-          <div className="space-y-2">
-            {items.map((op: any) => {
-              const etapaStyle = ETAPA_STYLES[op.etapa] ?? { bg: "bg-[#F1F5F9]", text: "text-[#64748B]", label: op.etapa };
-              return (
-                <Link
-                  key={op.id}
-                  href={`/oportunidades/${op.id}`}
-                  className="surface-card surface-card-hover flex items-center gap-4 px-5 py-4 rounded-2xl group transition-all"
-                >
-                  <div className="h-11 w-11 rounded-xl flex items-center justify-center flex-shrink-0 tint-violet">
-                    <Target className="h-5 w-5 text-violet-600" />
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[14px] font-bold text-[#0F172A] truncate">{op.titulo}</p>
-                    <div className="flex items-center gap-2 mt-1 flex-wrap">
-                      {op.empresa_nome && (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-1.5 py-0.5 rounded-md bg-[#F1F5F9] text-[#475569]">
-                          {op.empresa_nome}
-                        </span>
-                      )}
-                      {op.num_cartoes > 0 && (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-bold px-1.5 py-0.5 rounded-md tint-emerald text-emerald-700">
-                          <CreditCard className="h-3 w-3" />
-                          {op.num_cartoes.toLocaleString("pt-BR")} cartões
-                        </span>
-                      )}
-                      {op.responsavel && (
-                        <span className="text-[11px] text-[#94A3B8]">{op.responsavel}</span>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3 flex-shrink-0">
-                    <div className="text-right">
-                      <p className="text-[14px] font-bold text-[#0F172A]">{fmt(op.valor_estimado)}</p>
-                      {op.valor_mensal > 0 && op.num_cartoes > 0 && (
-                        <p className="text-[11px] text-[#94A3B8] mt-0.5">R$ {op.valor_mensal}/cartão</p>
-                      )}
-                    </div>
-                    <span className={`text-[11px] font-bold px-2 py-1 rounded-md ${etapaStyle.bg} ${etapaStyle.text}`}>
-                      {etapaStyle.label}
-                    </span>
-                    <ChevronRight className="h-4 w-4 text-[#CBD5E1] group-hover:text-[#4F46E5] transition-colors" />
-                  </div>
-                </Link>
-              );
-            })}
-            {items.length === 0 && (
-              <div className="surface-card rounded-2xl py-16 text-center">
-                <div className="h-16 w-16 rounded-2xl tint-violet flex items-center justify-center mx-auto mb-4">
-                  <Target className="h-8 w-8 text-violet-600" />
-                </div>
-                <p className="text-[15px] font-bold text-[#0F172A]">Nenhuma oportunidade encontrada</p>
-                <p className="text-[13px] text-[#64748B] mt-1 mb-5">Crie sua primeira oportunidade para começar</p>
-                <ButtonLink href="/oportunidades/nova" size="sm">+ Criar oportunidade</ButtonLink>
-              </div>
-            )}
+          <div className="surface-card rounded-xl overflow-hidden">
+            <ul className="divide-y divide-[#F1F5F9]">
+              {items.map((op) => {
+                const st = ETAPA_STYLES[op.etapa] ?? { bg: "bg-slate-100", text: "text-slate-700", label: op.etapa };
+                return (
+                  <li key={op.id}>
+                    <Link href={`/oportunidades/${op.id}`}
+                      className="flex items-center gap-4 px-5 py-3.5 hover:bg-[#F8FAFC] group">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="text-[14px] font-medium text-[#0F172A] truncate">{op.titulo}</p>
+                          <span className={`inline-flex items-center text-[11px] font-medium px-1.5 py-0.5 rounded ${st.bg} ${st.text}`}>
+                            {st.label}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-3 mt-0.5 text-[12px] text-[#64748B]">
+                          {op.empresa_nome && <span className="truncate">{op.empresa_nome}</span>}
+                          {op.num_cartoes > 0 && (
+                            <span className="tabular-nums">{op.num_cartoes.toLocaleString("pt-BR")} cartões</span>
+                          )}
+                          {op.responsavel && <span>{op.responsavel}</span>}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="text-right">
+                          <p className="text-[13px] font-medium text-[#0F172A] tabular-nums">{fmt(op.valor_estimado)}</p>
+                          {op.valor_mensal > 0 && op.num_cartoes > 0 && (
+                            <p className="text-[11px] text-[#94A3B8] tabular-nums">R$ {op.valor_mensal}/cartão</p>
+                          )}
+                        </div>
+                        <ChevronRight className="h-4 w-4 text-[#CBD5E1] group-hover:text-[#64748B]" />
+                      </div>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
           </div>
         )}
       </div>
