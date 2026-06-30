@@ -21,7 +21,7 @@ export default function CentralIAPage() {
     setMessages(prev => [...prev, { role: "user", content: userMsg }]);
     setLoading(true);
     try {
-      const r = await api.post("/ia/chat", { mensagem: userMsg });
+      const r = await api.post("/api/ia/chat", { mensagem: userMsg });
       setMessages(prev => [...prev, { role: "assistant", content: r.data.resposta ?? r.data.mensagem ?? "Sem resposta." }]);
     } catch {
       setMessages(prev => [...prev, { role: "assistant", content: "Erro ao conectar. Verifique a configuração no backend." }]);
