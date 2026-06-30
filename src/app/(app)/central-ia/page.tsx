@@ -42,7 +42,8 @@ export default function CentralIAPage() {
       <div className="flex-1 px-8 pt-4 pb-8 flex flex-col min-h-0">
         <div className="flex-1 surface-card rounded-xl flex flex-col overflow-hidden min-h-0">
 
-          <div className="flex-1 overflow-y-auto p-6 space-y-4">
+          <div className="flex-1 overflow-y-auto">
+            <div className="min-h-full p-6 space-y-4 flex flex-col justify-end">
             {messages.map((m, i) => (
               <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
                 <div
@@ -87,6 +88,7 @@ export default function CentralIAPage() {
               </div>
             )}
             <div ref={endRef} />
+            </div>
           </div>
 
           <div className="border-t border-[#F1F5F9] p-3 flex gap-2 items-end bg-white">
