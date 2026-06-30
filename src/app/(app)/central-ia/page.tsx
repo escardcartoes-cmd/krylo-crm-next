@@ -39,7 +39,7 @@ export default function CentralIAPage() {
   return (
     <>
       <Topbar title="Central de IA" />
-      <div className="flex-1 px-8 pt-4 pb-8 flex flex-col min-h-0">
+      <div className="flex-1 px-8 pt-4 pb-8 flex flex-col min-h-0" style={{ height: "calc(100vh - 90px)" }}>
         <div className="flex-1 surface-card rounded-xl flex flex-col overflow-hidden min-h-0">
 
           <div className="flex-1 overflow-y-auto">
