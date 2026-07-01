@@ -39,8 +39,9 @@ export default function LoginPage() {
         style={{ background: "linear-gradient(160deg,#312E81 0%,#4338CA 50%,#5B21B6 100%)" }}
       >
         {/* Top */}
-        <div>
+        <div className="flex items-center gap-3">
           <Logo variant="mark" size={40} />
+          <span className="text-[26px] font-bold tracking-[-0.5px]">Krylo</span>
         </div>
 
         {/* Middle */}
@@ -83,6 +84,7 @@ export default function LoginPage() {
                 id="usuario"
                 value={usuario}
                 onChange={(e) => setUsuario(e.target.value)}
+                placeholder="seu.usuario"
                 required
                 autoFocus
                 autoComplete="username"
@@ -104,6 +106,7 @@ export default function LoginPage() {
                 type="password"
                 value={senha}
                 onChange={(e) => setSenha(e.target.value)}
+                placeholder="••••••••"
                 required
                 autoComplete="current-password"
                 className={inputCls}
