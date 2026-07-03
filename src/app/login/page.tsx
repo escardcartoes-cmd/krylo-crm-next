@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { Logo } from "@/components/brand/Logo";
 import { Loader2 } from "lucide-react";
@@ -11,11 +13,18 @@ const inputCls =
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login } = useAuth();
   const [usuario, setUsuario] = useState("");
   const [senha, setSenha] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (searchParams.get("reset") === "ok") {
+      toast.success("Senha redefinida. Faça login com a nova senha.");
+    }
+  }, [searchParams]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -139,12 +148,12 @@ export default function LoginPage() {
                   >
                     Senha
                   </label>
-                  <a
-                    href="#"
+                  <Link
+                    href="/esqueci-senha"
                     className="text-[12px] text-[#64748B] hover:text-[#0F172A] transition-colors"
                   >
                     Esqueci
-                  </a>
+                  </Link>
                 </div>
                 <input
                   id="senha"
