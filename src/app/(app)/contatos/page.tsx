@@ -5,8 +5,9 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { Topbar } from "@/components/layout/Topbar";
 import { ButtonLink } from "@/components/ui/button-link";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { exportCSV } from "@/lib/export";
-import { Search, ChevronRight, Download, Mail, Phone } from "lucide-react";
+import { Search, ChevronRight, Download, Mail, Phone, Edit, Building2 } from "lucide-react";
 import Link from "next/link";
 
 function getInitials(name: string) {
@@ -18,6 +19,7 @@ function getInitials(name: string) {
 export default function ContatosPage() {
   const [q, setQ] = useState("");
   const [search, setSearch] = useState("");
+  const [detail, setDetail] = useState<any>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ["contatos", search],
@@ -84,8 +86,11 @@ export default function ContatosPage() {
             <ul className="divide-y divide-[#F1F5F9]">
               {items.map((c) => (
                 <li key={c.id}>
-                  <Link href={`/contatos/${c.id}/editar`}
-                    className="flex items-center gap-4 px-5 py-3.5 hover:bg-[#F8FAFC] group">
+                  <button
+                    type="button"
+                    onClick={() => setDetail(c)}
+                    className="w-full flex items-center gap-4 px-5 py-3.5 hover:bg-[#F8FAFC] group text-left"
+                  >
                     <div className="h-8 w-8 rounded-full bg-[#4F46E5] text-white text-[12px] font-medium flex items-center justify-center flex-shrink-0">
                       {getInitials(c.nome)}
                     </div>
@@ -111,13 +116,87 @@ export default function ContatosPage() {
                       </div>
                     </div>
                     <ChevronRight className="h-4 w-4 text-[#CBD5E1] group-hover:text-[#64748B]" />
-                  </Link>
+                  </button>
                 </li>
               ))}
             </ul>
           </div>
         )}
       </div>
+
+      <Dialog open={!!detail} onOpenChange={(o) => !o && setDetail(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Detalhes do contato</DialogTitle>
+          </DialogHeader>
+          {detail && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="h-12 w-12 rounded-full bg-[#4F46E5] text-white text-[16px] font-medium flex items-center justify-center flex-shrink-0">
+                  {getInitials(detail.nome)}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[16px] font-semibold text-[#0F172A]">{detail.nome}</p>
+                  {detail.cargo && (
+                    <p className="text-[13px] text-[#64748B]">{detail.cargo}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-2.5 pt-2 border-t border-[#F1F5F9]">
+                {detail.empresa_nome && (
+                  <div className="flex items-center gap-2 text-[13px]">
+                    <Building2 className="h-3.5 w-3.5 text-[#64748B]" />
+                    {detail.empresa_id ? (
+                      <Link
+                        href={`/empresas/${detail.empresa_id}`}
+                        className="text-[#4F46E5] hover:underline"
+                      >
+                        {detail.empresa_nome}
+                      </Link>
+                    ) : (
+                      <span className="text-[#334155]">{detail.empresa_nome}</span>
+                    )}
+                  </div>
+                )}
+                {detail.email && (
+                  <div className="flex items-center gap-2 text-[13px]">
+                    <Mail className="h-3.5 w-3.5 text-[#64748B]" />
+                    <a href={`mailto:${detail.email}`} className="text-[#4F46E5] hover:underline">{detail.email}</a>
+                  </div>
+                )}
+                {detail.telefone && (
+                  <div className="flex items-center gap-2 text-[13px]">
+                    <Phone className="h-3.5 w-3.5 text-[#64748B]" />
+                    <a href={`tel:${detail.telefone}`} className="text-[#4F46E5] hover:underline">{detail.telefone}</a>
+                  </div>
+                )}
+                {detail.criado_em && (
+                  <p className="text-[12px] text-[#94A3B8] pt-1">Criado em {detail.criado_em}</p>
+                )}
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            {detail && (
+              <Link
+                href={`/contatos/${detail.id}/editar`}
+                className="h-9 px-4 rounded-lg text-[13px] text-[#475569] hover:bg-[#F1F5F9] transition-colors inline-flex items-center gap-1.5"
+                onClick={() => setDetail(null)}
+              >
+                <Edit className="h-3.5 w-3.5" />Editar
+              </Link>
+            )}
+            <button
+              type="button"
+              onClick={() => setDetail(null)}
+              className="h-9 px-4 rounded-lg bg-[#4F46E5] hover:bg-[#4338CA] text-white text-[13px] font-medium transition-colors"
+            >
+              Fechar
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

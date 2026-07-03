@@ -158,23 +158,23 @@ export default function UsuariosPage() {
           <form onSubmit={e => { e.preventDefault(); saveMutation.mutate(); }} className="space-y-4">
             <div>
               <label className="text-[12px] font-medium text-[#334155] mb-1.5 block">Nome</label>
-              <input className={inputCls} value={form.nome} onChange={e => set("nome", e.target.value)} required />
+              <input className={inputCls} value={form.nome} onChange={e => set("nome", e.target.value)} required placeholder="Nome completo" />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="text-[12px] font-medium text-[#334155] mb-1.5 block">Usuário</label>
-                <input className={inputCls} value={form.usuario} onChange={e => set("usuario", e.target.value)} required autoComplete="off" />
+                <input className={inputCls} value={form.usuario} onChange={e => set("usuario", e.target.value)} required autoComplete="off" placeholder="usuario.login" />
               </div>
               <div>
                 <label className="text-[12px] font-medium text-[#334155] mb-1.5 block">E-mail</label>
-                <input className={inputCls} type="email" value={form.email} onChange={e => set("email", e.target.value)} required />
+                <input className={inputCls} type="email" value={form.email} onChange={e => set("email", e.target.value)} required placeholder="usuario@empresa.com" />
               </div>
             </div>
             <div>
               <label className="text-[12px] font-medium text-[#334155] mb-1.5 block">
                 Senha {editing && <span className="text-[#94A3B8] font-normal">(deixe vazio para manter)</span>}
               </label>
-              <input className={inputCls} type="password" value={form.senha} onChange={e => set("senha", e.target.value)} required={!editing} minLength={6} autoComplete="new-password" />
+              <input className={inputCls} type="password" value={form.senha} onChange={e => set("senha", e.target.value)} required={!editing} minLength={6} autoComplete="new-password" placeholder="Mín. 6 caracteres" />
             </div>
             <div>
               <label className="text-[12px] font-medium text-[#334155] mb-1.5 block">Perfil</label>

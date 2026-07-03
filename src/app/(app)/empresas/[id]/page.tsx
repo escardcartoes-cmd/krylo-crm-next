@@ -141,7 +141,7 @@ export default function EmpresaDetailPage() {
                 {emp.telefone && <InfoChip icon={Phone} label="Telefone" value={emp.telefone} />}
                 {emp.email && <InfoChip icon={Mail} label="E-mail" value={emp.email} />}
                 {emp.cidade && <InfoChip icon={MapPin} label="Localização" value={`${emp.cidade}${emp.estado ? `, ${emp.estado}` : ""}`} />}
-                {emp.num_funcionarios && <InfoChip icon={Users} label="Funcionários" value={String(emp.num_funcionarios)} />}
+                {emp.num_funcionarios ? <InfoChip icon={Users} label="Funcionários" value={String(emp.num_funcionarios)} /> : null}
               </div>
             </div>
           </div>

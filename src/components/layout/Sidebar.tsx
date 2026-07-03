@@ -88,31 +88,52 @@ export function Sidebar() {
   }
 
   return (
-    <aside className="fixed top-0 left-0 bottom-0 w-[240px] z-50 bg-white border-r border-[#E2E8F0] flex flex-col">
+    <aside
+      className="fixed top-4 left-4 bottom-4 w-[236px] z-50 rounded-2xl overflow-hidden flex flex-col text-white shadow-[0_10px_30px_-8px_rgba(15,23,42,0.25),0_2px_6px_-2px_rgba(15,23,42,0.15)]"
+      style={{ background: "#0B0F1A" }}
+    >
+      {/* Subtle grid pattern */}
+      <div
+        className="absolute inset-0 opacity-[0.03] pointer-events-none"
+        style={{
+          backgroundImage:
+            "linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)",
+          backgroundSize: "40px 40px",
+        }}
+      />
+      {/* Soft glow accent */}
+      <div
+        className="absolute -top-32 -left-24 w-80 h-80 rounded-full opacity-[0.20] pointer-events-none blur-3xl"
+        style={{ background: "radial-gradient(circle,#6366F1 0%,transparent 70%)" }}
+      />
+
       {/* Brand */}
-      <Link href="/dashboard" className="px-4 py-4 border-b border-[#F1F5F9] flex items-center gap-2.5 hover:bg-[#F8FAFC] transition-colors">
+      <Link
+        href="/dashboard"
+        className="relative px-4 py-4 border-b border-white/[0.06] flex items-center gap-2.5 hover:bg-white/[0.03] transition-colors"
+      >
         <Logo variant="mark" size={28} />
         <div className="min-w-0 flex-1">
-          <p className="text-[14px] font-semibold text-[#0F172A] leading-none tracking-[-0.2px]">Krylo</p>
-          <p className="text-[10px] text-[#94A3B8] mt-1 uppercase tracking-wider font-medium">Starter</p>
+          <p className="text-[14px] font-semibold text-white leading-none tracking-[-0.2px]">Krylo</p>
+          <p className="text-[10px] text-white/40 mt-1 uppercase tracking-wider font-medium">Starter</p>
         </div>
       </Link>
 
       {/* Search */}
-      <div className="px-3 py-2.5">
-        <button className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md bg-[#F1F5F9] hover:bg-[#E2E8F0] transition-colors">
-          <Search className="h-3.5 w-3.5 text-[#94A3B8] flex-shrink-0" />
-          <span className="text-[12px] text-[#64748B] flex-1 text-left">Buscar…</span>
-          <kbd className="text-[10px] text-[#94A3B8] bg-white border border-[#E2E8F0] rounded px-1 font-mono">⌘K</kbd>
+      <div className="relative px-3 py-2.5">
+        <button className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md bg-white/[0.05] hover:bg-white/[0.08] transition-colors">
+          <Search className="h-3.5 w-3.5 text-white/40 flex-shrink-0" />
+          <span className="text-[12px] text-white/50 flex-1 text-left">Buscar…</span>
+          <kbd className="text-[10px] text-white/40 bg-white/[0.06] border border-white/[0.08] rounded px-1 font-mono">⌘K</kbd>
         </button>
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 overflow-y-auto px-2 pb-2">
+      <nav className="relative flex-1 overflow-y-auto px-2 pb-2 [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.1)_transparent]">
         {navSections.map((section, si) => (
           <div key={si} className={si > 0 ? "pt-4" : "pt-1"}>
             {section.label && (
-              <p className="px-2.5 pb-1 text-[10px] font-semibold text-[#94A3B8] uppercase tracking-wider">
+              <p className="px-2.5 pb-1 text-[10px] font-semibold text-white/35 uppercase tracking-wider">
                 {section.label}
               </p>
             )}
@@ -128,15 +149,15 @@ export function Sidebar() {
                     "flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-[13px] transition-colors",
                     item.indent ? "ml-3" : "",
                     active
-                      ? "bg-[#EEF2FF] text-[#4F46E5] font-medium"
-                      : "text-[#475569] hover:bg-[#F1F5F9] hover:text-[#0F172A]"
+                      ? "bg-white/[0.10] text-white font-medium"
+                      : "text-white/65 hover:bg-white/[0.05] hover:text-white"
                   )}
                 >
                   <Icon className={cn("h-[15px] w-[15px] flex-shrink-0",
-                    active ? "text-[#4F46E5]" : "text-[#64748B]")} />
+                    active ? "text-[#A5B4FC]" : "text-white/50")} />
                   <span className="flex-1 truncate">{item.label}</span>
                   {badge && badge > 0 ? (
-                    <span className="h-4 min-w-4 px-1 rounded bg-[#DC2626] text-white text-[10px] font-semibold flex items-center justify-center tabular-nums">
+                    <span className="h-4 min-w-4 px-1 rounded bg-[#EF4444] text-white text-[10px] font-semibold flex items-center justify-center tabular-nums">
                       {badge > 99 ? "99+" : badge}
                     </span>
                   ) : null}
@@ -149,19 +170,25 @@ export function Sidebar() {
 
       {/* User */}
       {user && (
-        <div className="px-3 py-3 border-t border-[#F1F5F9]">
+        <div className="relative px-3 py-3 border-t border-white/[0.06]">
           <div className="flex items-center gap-2">
-            <Link href="/conta" className="flex items-center gap-2.5 px-2 py-1.5 rounded-md hover:bg-[#F1F5F9] transition-colors flex-1 min-w-0">
-              <div className="h-7 w-7 rounded-full bg-[#4F46E5] flex items-center justify-center text-white text-[12px] font-medium flex-shrink-0">
+            <Link
+              href="/conta"
+              className="flex items-center gap-2.5 px-2 py-1.5 rounded-md hover:bg-white/[0.05] transition-colors flex-1 min-w-0"
+            >
+              <div className="h-7 w-7 rounded-full bg-gradient-to-br from-[#6366F1] to-[#8B5CF6] flex items-center justify-center text-white text-[12px] font-medium flex-shrink-0">
                 {user.nome?.[0]?.toUpperCase() ?? "A"}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[12px] font-medium text-[#0F172A] truncate leading-tight">{user.nome}</p>
-                <p className="text-[10px] text-[#94A3B8] truncate capitalize">{user.perfil}</p>
+                <p className="text-[12px] font-medium text-white truncate leading-tight">{user.nome}</p>
+                <p className="text-[10px] text-white/40 truncate capitalize">{user.perfil}</p>
               </div>
             </Link>
-            <button onClick={logout} title="Sair"
-              className="text-[#94A3B8] hover:text-[#DC2626] p-1.5 rounded hover:bg-[#FEF2F2] flex-shrink-0">
+            <button
+              onClick={logout}
+              title="Sair"
+              className="text-white/40 hover:text-[#F87171] p-1.5 rounded hover:bg-white/[0.05] flex-shrink-0 transition-colors"
+            >
               <LogOut className="h-3.5 w-3.5" />
             </button>
           </div>

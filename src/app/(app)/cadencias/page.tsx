@@ -1,9 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { Topbar } from "@/components/layout/Topbar";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ChevronRight } from "lucide-react";
 
 const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }> = {
   pendente:   { bg: "bg-amber-100",   text: "text-amber-700",   label: "Pendente" },
@@ -38,19 +40,23 @@ export default function CadenciasPage() {
               {items.map((c) => {
                 const st = STATUS_STYLES[c.status] ?? STATUS_STYLES.pendente;
                 const canais = [c.canal_email && "Email", c.canal_whatsapp && "WhatsApp"].filter(Boolean).join(" · ");
+                const href = c.empresa_id ? `/empresas/${c.empresa_id}` : "#";
                 return (
-                  <li key={c.id} className="flex items-center gap-4 px-5 py-3.5 hover:bg-[#F8FAFC]">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[14px] font-medium text-[#0F172A] truncate">{c.empresa_nome}</p>
-                      <div className="flex items-center gap-3 mt-0.5 text-[12px] text-[#64748B]">
-                        <span>Etapa {c.etapa}</span>
-                        {canais && <span>{canais}</span>}
-                        {c.data_acao && <span className="tabular-nums">{c.data_acao}</span>}
+                  <li key={c.id}>
+                    <Link href={href} className="flex items-center gap-4 px-5 py-3.5 hover:bg-[#F8FAFC] transition-colors">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[14px] font-medium text-[#0F172A] truncate">{c.empresa_nome}</p>
+                        <div className="flex items-center gap-3 mt-0.5 text-[12px] text-[#64748B]">
+                          <span>Etapa {c.etapa}</span>
+                          {canais && <span>{canais}</span>}
+                          {c.data_acao && <span className="tabular-nums">{c.data_acao}</span>}
+                        </div>
                       </div>
-                    </div>
-                    <span className={`inline-flex items-center text-[11px] font-medium px-1.5 py-0.5 rounded ${st.bg} ${st.text}`}>
-                      {st.label}
-                    </span>
+                      <span className={`inline-flex items-center text-[11px] font-medium px-1.5 py-0.5 rounded ${st.bg} ${st.text}`}>
+                        {st.label}
+                      </span>
+                      <ChevronRight className="h-4 w-4 text-[#94A3B8] flex-shrink-0" />
+                    </Link>
                   </li>
                 );
               })}

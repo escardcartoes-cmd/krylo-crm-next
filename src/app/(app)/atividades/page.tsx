@@ -28,6 +28,7 @@ const inputCls = "w-full h-9 px-3 rounded-lg border border-[#CBD5E1] bg-white te
 export default function AtividadesPage() {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
+  const [detail, setDetail] = useState<any>(null);
   const [form, setForm] = useState({ tipo: "Ligação", descricao: "", data: "", empresa_id: "" });
 
   const { data, isLoading } = useQuery({
@@ -81,22 +82,28 @@ export default function AtividadesPage() {
               {items.map((a) => {
                 const Icon = TIPO_ICONS[a.tipo] ?? Pin;
                 return (
-                  <li key={a.id} className="flex items-center gap-4 px-5 py-3.5 hover:bg-[#F8FAFC]">
-                    <Icon className="h-4 w-4 text-[#64748B] flex-shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <p className="text-[14px] font-medium text-[#0F172A]">{a.tipo}</p>
-                        {a.empresa_nome && (
-                          <span className="text-[12px] text-[#64748B]">· {a.empresa_nome}</span>
+                  <li key={a.id}>
+                    <button
+                      type="button"
+                      onClick={() => setDetail(a)}
+                      className="w-full flex items-center gap-4 px-5 py-3.5 hover:bg-[#F8FAFC] transition-colors text-left"
+                    >
+                      <Icon className="h-4 w-4 text-[#64748B] flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="text-[14px] font-medium text-[#0F172A]">{a.tipo}</p>
+                          {a.empresa_nome && (
+                            <span className="text-[12px] text-[#64748B]">· {a.empresa_nome}</span>
+                          )}
+                        </div>
+                        {a.descricao && (
+                          <p className="text-[12px] text-[#64748B] mt-0.5 truncate">{a.descricao}</p>
                         )}
                       </div>
-                      {a.descricao && (
-                        <p className="text-[12px] text-[#64748B] mt-0.5 truncate">{a.descricao}</p>
+                      {a.data && (
+                        <span className="text-[12px] text-[#64748B] tabular-nums flex-shrink-0">{a.data}</span>
                       )}
-                    </div>
-                    {a.data && (
-                      <span className="text-[12px] text-[#64748B] tabular-nums flex-shrink-0">{a.data}</span>
-                    )}
+                    </button>
                   </li>
                 );
               })}
@@ -104,6 +111,60 @@ export default function AtividadesPage() {
           </div>
         )}
       </div>
+
+      <Dialog open={!!detail} onOpenChange={(o) => !o && setDetail(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Detalhes da atividade</DialogTitle>
+          </DialogHeader>
+          {detail && (
+            <div className="space-y-3 text-[13px]">
+              <div>
+                <p className="text-[11px] font-medium text-[#94A3B8] uppercase tracking-wider mb-0.5">Tipo</p>
+                <p className="text-[14px] font-medium text-[#0F172A]">{detail.tipo}</p>
+              </div>
+              {detail.empresa_nome && (
+                <div>
+                  <p className="text-[11px] font-medium text-[#94A3B8] uppercase tracking-wider mb-0.5">Empresa</p>
+                  <a
+                    href={detail.empresa_id ? `/empresas/${detail.empresa_id}` : "#"}
+                    className="text-[14px] font-medium text-[#4F46E5] hover:underline"
+                  >
+                    {detail.empresa_nome}
+                  </a>
+                </div>
+              )}
+              {detail.data && (
+                <div>
+                  <p className="text-[11px] font-medium text-[#94A3B8] uppercase tracking-wider mb-0.5">Data</p>
+                  <p className="text-[14px] text-[#0F172A] tabular-nums">{detail.data}</p>
+                </div>
+              )}
+              {detail.descricao && (
+                <div>
+                  <p className="text-[11px] font-medium text-[#94A3B8] uppercase tracking-wider mb-0.5">Descrição</p>
+                  <p className="text-[14px] text-[#334155] whitespace-pre-line">{detail.descricao}</p>
+                </div>
+              )}
+              {detail.criado_em && (
+                <div>
+                  <p className="text-[11px] font-medium text-[#94A3B8] uppercase tracking-wider mb-0.5">Registrada em</p>
+                  <p className="text-[13px] text-[#64748B] tabular-nums">{detail.criado_em}</p>
+                </div>
+              )}
+            </div>
+          )}
+          <DialogFooter>
+            <button
+              type="button"
+              onClick={() => setDetail(null)}
+              className="h-9 px-4 rounded-lg text-[13px] text-[#475569] hover:bg-[#F1F5F9] transition-colors"
+            >
+              Fechar
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>

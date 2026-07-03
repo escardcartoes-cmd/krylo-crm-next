@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { Topbar } from "@/components/layout/Topbar";
@@ -74,7 +75,16 @@ export default function FilaWhatsAppPage() {
                 <div key={c.id} className="surface-card rounded-xl p-5 space-y-3">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <p className="text-[14px] font-medium text-[#0F172A] truncate">{c.empresa_nome}</p>
+                      {c.empresa_id ? (
+                        <Link
+                          href={`/empresas/${c.empresa_id}`}
+                          className="text-[14px] font-medium text-[#0F172A] hover:text-[#4F46E5] hover:underline truncate block"
+                        >
+                          {c.empresa_nome}
+                        </Link>
+                      ) : (
+                        <p className="text-[14px] font-medium text-[#0F172A] truncate">{c.empresa_nome}</p>
+                      )}
                       <p className="text-[12px] text-[#64748B] mt-0.5 font-mono">{c.contato_whatsapp || "Sem telefone"}</p>
                     </div>
                     <span className={`inline-flex items-center text-[11px] font-medium px-1.5 py-0.5 rounded flex-shrink-0 ${status.bg} ${status.text}`}>

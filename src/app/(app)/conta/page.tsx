@@ -60,11 +60,11 @@ export default function ContaPage() {
               <form onSubmit={e => { e.preventDefault(); profileMutation.mutate(); }} className="space-y-3.5">
                 <div>
                   <label className="text-[12px] font-medium text-[#334155] mb-1.5 block">Nome</label>
-                  <input className={inputCls} value={profile.nome} onChange={e => setProfile(p => ({...p, nome: e.target.value}))} required />
+                  <input className={inputCls} value={profile.nome} onChange={e => setProfile(p => ({...p, nome: e.target.value}))} required placeholder="Seu nome completo" />
                 </div>
                 <div>
                   <label className="text-[12px] font-medium text-[#334155] mb-1.5 block">E-mail</label>
-                  <input className={inputCls} type="email" value={profile.email} onChange={e => setProfile(p => ({...p, email: e.target.value}))} required />
+                  <input className={inputCls} type="email" value={profile.email} onChange={e => setProfile(p => ({...p, email: e.target.value}))} required placeholder="voce@empresa.com" />
                 </div>
                 <div>
                   <label className="text-[12px] font-medium text-[#334155] mb-1.5 block">Usuário <span className="text-[#94A3B8] font-normal">(não editável)</span></label>
@@ -83,16 +83,16 @@ export default function ContaPage() {
               <form onSubmit={e => { e.preventDefault(); pwMutation.mutate(); }} className="space-y-3.5">
                 <div>
                   <label className="text-[12px] font-medium text-[#334155] mb-1.5 block">Senha atual</label>
-                  <input className={inputCls} type="password" value={pw.senha_atual} onChange={e => setPw(p => ({...p, senha_atual: e.target.value}))} required autoComplete="current-password" />
+                  <input className={inputCls} type="password" value={pw.senha_atual} onChange={e => setPw(p => ({...p, senha_atual: e.target.value}))} required autoComplete="current-password" placeholder="••••••••" />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="text-[12px] font-medium text-[#334155] mb-1.5 block">Nova senha</label>
-                    <input className={inputCls} type="password" value={pw.nova_senha} onChange={e => setPw(p => ({...p, nova_senha: e.target.value}))} required minLength={6} autoComplete="new-password" />
+                    <input className={inputCls} type="password" value={pw.nova_senha} onChange={e => setPw(p => ({...p, nova_senha: e.target.value}))} required minLength={6} autoComplete="new-password" placeholder="Mín. 6 caracteres" />
                   </div>
                   <div>
                     <label className="text-[12px] font-medium text-[#334155] mb-1.5 block">Confirmar</label>
-                    <input className={inputCls} type="password" value={pw.confirmar} onChange={e => setPw(p => ({...p, confirmar: e.target.value}))} required minLength={6} autoComplete="new-password" />
+                    <input className={inputCls} type="password" value={pw.confirmar} onChange={e => setPw(p => ({...p, confirmar: e.target.value}))} required minLength={6} autoComplete="new-password" placeholder="Repita a nova senha" />
                   </div>
                 </div>
                 <button type="submit" disabled={pwMutation.isPending}

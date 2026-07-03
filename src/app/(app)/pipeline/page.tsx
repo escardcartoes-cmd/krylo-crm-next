@@ -97,9 +97,6 @@ export default function PipelinePage() {
                         </div>
                       </div>
                     ))}
-                    {cards.length === 0 && (
-                      <p className="text-[12px] text-[#94A3B8] text-center py-6">Vazio</p>
-                    )}
                   </div>
                 </div>
               );
