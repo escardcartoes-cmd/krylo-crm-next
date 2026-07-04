@@ -1,23 +1,44 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { Topbar } from "@/components/layout/Topbar";
-import { Loader2 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Loader2, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
 const inputCls = "w-full h-9 px-3 rounded-lg border border-[#CBD5E1] bg-white text-[13px] text-[#0F172A] placeholder-[#94A3B8] outline-none focus:border-[#4F46E5] focus:ring-2 focus:ring-[#4F46E5]/15 transition-colors";
 
 export default function ContaPage() {
   const { user } = useAuth();
+  const qc = useQueryClient();
   const [profile, setProfile] = useState({ nome: "", email: "" });
   const [pw, setPw] = useState({ senha_atual: "", nova_senha: "", confirmar: "" });
+
+  const { data: security } = useQuery({
+    queryKey: ["me-security"],
+    queryFn: () => api.get("/api/me").then((r) => r.data),
+    enabled: !!user,
+  });
+
+  const twoFAEnabled = !!security?.dois_fatores_ativo;
+  const twoFAChannel = security?.dois_fatores_canal ?? "email";
 
   useEffect(() => {
     if (user) setProfile({ nome: user.nome ?? "", email: user.email ?? "" });
   }, [user]);
+
+  const securityMutation = useMutation({
+    mutationFn: (payload: { dois_fatores_ativo: boolean; dois_fatores_canal: string }) =>
+      api.put("/api/me/security", payload).then((r) => r.data),
+    onSuccess: (data) => {
+      qc.invalidateQueries({ queryKey: ["me-security"] });
+      toast.success(data.dois_fatores_ativo ? "2FA ativado" : "2FA desativado");
+    },
+    onError: (err: any) => toast.error(err.response?.data?.error ?? "Erro ao atualizar 2FA"),
+  });
 
   const profileMutation = useMutation({
     mutationFn: () => api.put("/api/me", profile),
@@ -101,6 +122,56 @@ export default function ContaPage() {
                   Alterar senha
                 </button>
               </form>
+            </div>
+
+            <div className="surface-card rounded-xl p-6">
+              <div className="flex items-start justify-between gap-4 pb-3 border-b border-[#F1F5F9] mb-4">
+                <div className="flex items-start gap-2.5">
+                  <div className="h-8 w-8 rounded-lg bg-emerald-50 flex items-center justify-center flex-shrink-0">
+                    <ShieldCheck className="h-4 w-4 text-emerald-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-[13px] font-semibold text-[#0F172A]">Autenticação em dois fatores</h3>
+                    <p className="text-[12px] text-[#64748B] mt-0.5">
+                      Envia um código de 6 dígitos por email ou WhatsApp a cada login.
+                    </p>
+                  </div>
+                </div>
+                <label className="inline-flex items-center cursor-pointer flex-shrink-0">
+                  <input
+                    type="checkbox"
+                    checked={twoFAEnabled}
+                    onChange={(e) =>
+                      securityMutation.mutate({
+                        dois_fatores_ativo: e.target.checked,
+                        dois_fatores_canal: twoFAChannel,
+                      })
+                    }
+                    disabled={securityMutation.isPending}
+                    className="sr-only peer"
+                  />
+                  <div className="w-9 h-5 bg-[#E2E8F0] peer-checked:bg-[#4F46E5] rounded-full transition-colors peer-disabled:opacity-60 relative after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-transform peer-checked:after:translate-x-4" />
+                </label>
+              </div>
+              {twoFAEnabled && (
+                <div className="space-y-1.5">
+                  <label className="text-[12px] font-medium text-[#334155] block">Canal de envio</label>
+                  <Select
+                    value={twoFAChannel}
+                    onValueChange={(v) =>
+                      securityMutation.mutate({ dois_fatores_ativo: true, dois_fatores_canal: v })
+                    }
+                  >
+                    <SelectTrigger className="h-9 rounded-lg border-[#CBD5E1] bg-white text-[13px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="email">E-mail</SelectItem>
+                      <SelectItem value="whatsapp">WhatsApp</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
             </div>
           </div>
 
