@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { api } from "@/lib/api";
@@ -10,7 +10,7 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 const inputCls =
   "w-full h-11 px-3.5 rounded-md border border-[#E2E8F0] bg-white text-[14px] text-[#0F172A] placeholder-[#94A3B8] outline-none focus:border-[#0F172A] focus:ring-1 focus:ring-[#0F172A] transition-all";
 
-export default function RedefinirSenhaPage() {
+function RedefinirSenhaPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState(searchParams.get("email") ?? "");
@@ -144,5 +144,13 @@ export default function RedefinirSenhaPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function RedefinirSenhaPage() {
+  return (
+    <Suspense fallback={null}>
+      <RedefinirSenhaPageInner />
+    </Suspense>
   );
 }
