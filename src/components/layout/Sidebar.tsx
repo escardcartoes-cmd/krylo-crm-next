@@ -12,7 +12,7 @@ import {
   LayoutDashboard, Bot, Phone, Mail, Brain,
   HelpCircle, Radar, Building2, Users, Target,
   BarChart3, Calculator, CheckSquare, Thermometer,
-  LogOut, Search, Upload, Goal, Settings, UserCircle,
+  LogOut, Search, Upload, Goal, Settings, UserCircle, Plug, Shield,
 } from "lucide-react";
 
 interface NavItem {
@@ -59,6 +59,7 @@ const navSections: { label: string | null; items: NavItem[] }[] = [
     items: [
       { href: "/usuarios",        label: "Usuários",        icon: Users },
       { href: "/configuracoes",   label: "Empresa",         icon: Settings },
+      { href: "/integracoes",     label: "Integrações",     icon: Plug },
       { href: "/conta",           label: "Minha conta",     icon: UserCircle },
       { href: "/ajuda",           label: "Ajuda",           icon: HelpCircle },
     ],
@@ -130,6 +131,24 @@ export function Sidebar() {
 
       {/* Nav */}
       <nav className="relative flex-1 overflow-y-auto px-2 pb-2 [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.1)_transparent]">
+        {user?.perfil === "super_admin" && (
+          <div className="pt-1">
+            <p className="px-2.5 pb-1 text-[10px] font-semibold text-[#A5B4FC] uppercase tracking-wider">Krylo Admin</p>
+            <Link
+              href="/admin/tenants"
+              className={cn(
+                "flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-[13px] transition-colors",
+                isActive("/admin/tenants")
+                  ? "bg-white/[0.10] text-white font-medium"
+                  : "text-white/65 hover:bg-white/[0.05] hover:text-white"
+              )}
+            >
+              <Shield className={cn("h-[15px] w-[15px] flex-shrink-0",
+                isActive("/admin/tenants") ? "text-[#A5B4FC]" : "text-white/50")} />
+              <span className="flex-1 truncate">Tenants</span>
+            </Link>
+          </div>
+        )}
         {navSections.map((section, si) => (
           <div key={si} className={si > 0 ? "pt-4" : "pt-1"}>
             {section.label && (
