@@ -7,7 +7,7 @@ import { Topbar } from "@/components/layout/Topbar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Edit, UserX, UserCheck, Loader2 } from "lucide-react";
+import { Edit, UserX, UserCheck, Loader2, Mail, Copy } from "lucide-react";
 import { toast } from "sonner";
 
 const PERFIS = [
@@ -21,11 +21,16 @@ const inputCls = "w-full h-9 px-3 rounded-lg border border-[#CBD5E1] bg-white te
 
 const EMPTY = { nome: "", email: "", usuario: "", senha: "", perfil: "vendedor", ativo: 1 };
 
+const INVITE_EMPTY = { nome: "", email: "", usuario: "", perfil: "vendedor" };
+
 export default function UsuariosPage() {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<any>(null);
   const [form, setForm] = useState<any>(EMPTY);
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const [inviteForm, setInviteForm] = useState(INVITE_EMPTY);
+  const [inviteResult, setInviteResult] = useState<{ link: string; email_status: string } | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ["usuarios"],
@@ -65,6 +70,19 @@ export default function UsuariosPage() {
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["usuarios"] }); toast.success("Usuário reativado"); },
   });
 
+  const inviteMutation = useMutation({
+    mutationFn: () => api.post("/api/usuarios/convidar", inviteForm).then(r => r.data),
+    onSuccess: (r: any) => {
+      qc.invalidateQueries({ queryKey: ["usuarios"] });
+      setInviteResult({ link: r.link, email_status: r.email_status });
+      if (r.email_status === "enviado") toast.success("Convite enviado por email");
+      else toast.warning("Convite criado — copie o link e envie manualmente");
+    },
+    onError: (err: any) => toast.error(err.response?.data?.error ?? "Erro ao convidar"),
+  });
+
+  const setI = (k: string, v: string | null) => setInviteForm(p => ({ ...p, [k]: v ?? "" }));
+
   function openCreate() { setEditing(null); setForm(EMPTY); setOpen(true); }
   function openEdit(u: any) {
     setEditing(u);
@@ -82,10 +100,19 @@ export default function UsuariosPage() {
         title="Usuários"
         subtitle={`${ativos} ativo${ativos !== 1 ? "s" : ""} · ${inativos} inativo${inativos !== 1 ? "s" : ""}`}
         actions={
-          <button onClick={openCreate}
-            className="h-8 px-3.5 rounded-lg bg-[#4F46E5] hover:bg-[#4338CA] text-white text-[13px] font-medium transition-colors">
-            Novo usuário
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => { setInviteForm(INVITE_EMPTY); setInviteResult(null); setInviteOpen(true); }}
+              className="h-8 px-3.5 rounded-lg border border-[#CBD5E1] bg-white hover:bg-[#F8FAFC] text-[#475569] text-[13px] font-medium transition-colors inline-flex items-center gap-1.5"
+            >
+              <Mail className="h-3.5 w-3.5" />
+              Convidar por email
+            </button>
+            <button onClick={openCreate}
+              className="h-8 px-3.5 rounded-lg bg-[#4F46E5] hover:bg-[#4338CA] text-white text-[13px] font-medium transition-colors">
+              Novo usuário
+            </button>
+          </div>
         }
       />
 
@@ -197,6 +224,86 @@ export default function UsuariosPage() {
               </button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal Convidar por email */}
+      <Dialog open={inviteOpen} onOpenChange={(o) => { setInviteOpen(o); if (!o) setInviteResult(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Convidar usuário por email</DialogTitle>
+          </DialogHeader>
+
+          {inviteResult ? (
+            <div className="space-y-4">
+              <div className={`rounded-lg px-4 py-3 text-[13px] ${
+                inviteResult.email_status === "enviado"
+                  ? "bg-emerald-50 border border-emerald-200 text-emerald-900"
+                  : "bg-amber-50 border border-amber-200 text-amber-900"
+              }`}>
+                {inviteResult.email_status === "enviado"
+                  ? "E-mail com link de ativação enviado. Válido por 7 dias."
+                  : "Convite criado. Envio de email falhou — copie o link abaixo e envie manualmente."}
+              </div>
+              <div>
+                <label className="text-[12px] font-medium text-[#334155] mb-1.5 block">Link de ativação</label>
+                <div className="flex gap-2">
+                  <input readOnly value={inviteResult.link} className={`${inputCls} font-mono text-[11px]`} />
+                  <button
+                    type="button"
+                    onClick={() => { navigator.clipboard.writeText(inviteResult.link); toast.success("Link copiado"); }}
+                    className="h-9 px-3 rounded-lg border border-[#CBD5E1] hover:bg-[#F8FAFC] text-[#475569] flex items-center gap-1.5"
+                  >
+                    <Copy className="h-3.5 w-3.5" />Copiar
+                  </button>
+                </div>
+              </div>
+              <DialogFooter>
+                <button type="button" onClick={() => { setInviteOpen(false); setInviteResult(null); }}
+                  className="h-9 px-4 rounded-lg bg-[#4F46E5] hover:bg-[#4338CA] text-white text-[13px] font-medium">
+                  Fechar
+                </button>
+              </DialogFooter>
+            </div>
+          ) : (
+            <form onSubmit={(e) => { e.preventDefault(); inviteMutation.mutate(); }} className="space-y-4">
+              <div>
+                <label className="text-[12px] font-medium text-[#334155] mb-1.5 block">Nome</label>
+                <input className={inputCls} value={inviteForm.nome} onChange={e => setI("nome", e.target.value)} required placeholder="Nome completo" />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-[12px] font-medium text-[#334155] mb-1.5 block">E-mail</label>
+                  <input className={inputCls} type="email" value={inviteForm.email} onChange={e => setI("email", e.target.value.toLowerCase())} required placeholder="usuario@empresa.com" />
+                </div>
+                <div>
+                  <label className="text-[12px] font-medium text-[#334155] mb-1.5 block">Usuário</label>
+                  <input className={inputCls} value={inviteForm.usuario} onChange={e => setI("usuario", e.target.value.toLowerCase())} required placeholder="usuario.login" />
+                </div>
+              </div>
+              <div>
+                <label className="text-[12px] font-medium text-[#334155] mb-1.5 block">Perfil</label>
+                <Select value={inviteForm.perfil} onValueChange={v => setI("perfil", v)}>
+                  <SelectTrigger className="h-9 rounded-lg border-[#CBD5E1] bg-white text-[13px]"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {PERFIS.map(p => <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <p className="text-[12px] text-[#64748B] bg-[#F8FAFC] rounded-md px-3 py-2">
+                O convidado recebe um email com link pra definir a própria senha. Link válido por 7 dias.
+              </p>
+              <DialogFooter>
+                <button type="button" onClick={() => setInviteOpen(false)}
+                  className="h-9 px-4 rounded-lg text-[13px] text-[#475569] hover:bg-[#F1F5F9]">Cancelar</button>
+                <button type="submit" disabled={inviteMutation.isPending}
+                  className="h-9 px-4 rounded-lg bg-[#4F46E5] hover:bg-[#4338CA] text-white text-[13px] font-medium flex items-center gap-2 disabled:opacity-60">
+                  {inviteMutation.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                  Enviar convite
+                </button>
+              </DialogFooter>
+            </form>
+          )}
         </DialogContent>
       </Dialog>
     </>
