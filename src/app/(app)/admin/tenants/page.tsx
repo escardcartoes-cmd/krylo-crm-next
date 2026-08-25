@@ -52,7 +52,7 @@ export default function AdminTenantsPage() {
     onError: (err: any) => toast.error(err.response?.data?.error ?? "Erro"),
   });
 
-  const set = (k: string, v: string) => setForm(p => ({ ...p, [k]: v }));
+  const set = (k: string, v: string | null) => setForm(p => ({ ...p, [k]: v ?? "" }));
 
   if (user && user.perfil !== "super_admin") {
     return (

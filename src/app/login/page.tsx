@@ -31,7 +31,12 @@ function LoginPageInner() {
     setError("");
     setLoading(true);
     try {
-      await login(usuario, senha);
+      const r = await login(usuario, senha);
+      if (r.needs_2fa) {
+        const q = new URLSearchParams({ canal: r.canal ?? "email", d: r.destino_mascarado ?? "" });
+        router.push(`/login-2fa?${q}`);
+        return;
+      }
       router.push("/dashboard");
     } catch (err: any) {
       setError(err.response?.data?.error || "Usuário ou senha incorretos.");
