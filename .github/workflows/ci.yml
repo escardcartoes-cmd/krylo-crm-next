@@ -41,9 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     needs: build
-    services:
-      # Flask backend for the smoke test. Uses the sibling repo checked out at ../escard-crm.
-      # Skipped locally when the sibling isn't present.
+    # Flask backend for the smoke test is booted inline in a step below (see "Boot Flask").
     steps:
       - uses: actions/checkout@v4
 
